@@ -30,87 +30,127 @@ format:
 
 - **Interfacial Flows:** Two immiscible phases separated by a sharp interface
 - **Phase Change:** Solid ⇄ liquid, driven by latent heat
-- **Key Challenges:**
-  - Sharp interface representation
-  - Conservation properties
-  - Moving boundaries
+- **Applications:** Material processing, ice melting, crystal growth ...
 
-![Ice Formation](images/ice.jpg){width=80%}
-
----
-
-## Cut-Cell Approach: Primary Difficulties
-
-::: {layout-ncol=2}
-::: {.column}
-1. **Sharp Interface on Cartesian Grids**
-2. **Interface Conditions**
-3. **Conservation**
-4. **Two-Fluid Formulation**
-:::
-
-::: {.column}
-![Cut-cell method](images/cut_cell_with_conditions.svg){width=100%}
-:::
-:::
+![](images/ice.jpg){width=0% fig-align="center"}
 
 ---
 
 ## Stefan-type Problems
 
-- Moving boundary separates solid & liquid phases
-- Interface position depends on temperature gradients
+::: {layout-ncol=2}
+- Classical phase change problems where a moving boundary separates phases
+- Interface position $s(t)$ depends on temperature gradients $\nabla T_i$
+
+![](images/ice_melting.gif){width=70% fig-align="center"}
+:::
 
 **Key Equation (Two-Phase Stefan)**
-$$
-\begin{aligned}
-\text{Find } T_i(x,t) \text{ and } s(t) \text{ such that:}\\
-\partial_t T_i - \nabla\cdot(k_i\,\nabla T_i) &= 0, \quad x \in \Omega_i(t),\\
-T_i(s(t),t) &= T_m,  \quad \text{on } \Gamma(t),\\
-\rho\,L\,\frac{ds}{dt} &= ⟦ k_i\,\nabla T_i \cdot \mathbf{n}⟧ \quad \text{on } \Gamma(t),\\
-\end{aligned}
-$$
-
-# Stationary Interfaces
-
-## Two-Phase Discretization
-
-- Interface divides computational domain into two regions
-- Each phase follows its own heat equation
-- Coupled through jump conditions at interface
 
 $$
 \begin{aligned}
-\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &= S_i \quad \text{in } \Omega_i, \quad i=1,2 \\
-⟦\alpha T⟧ &= g \quad \text{on } \Gamma \\
-⟦k \nabla T \cdot \mathbf{n}⟧ &= h \quad \text{on } \Gamma
+&\text{Find } T_i(x,t)\ \text{and interface } s(t) \text{ such that:}\\
+&\quad \partial_t T_i - \nabla\cdot(k_i\,\nabla T_i) = 0, \quad x \in \Omega_i(t),\\
+&\quad T_i(s(t),t) = T_m, \quad 
+\rho\,L\,\frac{ds}{dt} \;=\; ⟦ k_i\,\nabla T_i \cdot \mathbf{n}⟧.
 \end{aligned}
 $$
 
 ---
 
+## Primary Challenges
+
+::: {.border .p-2}
+| **Challenges** | | **Our Approach** |
+|:---------------|:-:|:----------------|
+| Sharp Interface Modeling | → | Cut-Cell on Cartesian Grid |
+| Conservation with Moving Domains | → | Space-Time Framework |
+| Interface Jump Conditions | → | Two-Fluid Formulation |
+| Interface Update | → | Fixed-Point Iteration |
+| Numerical Stability | → | Implicit Interface Coupling |
+:::
+
+# Cut Cell Method for static interfaces
+
+## Two-Phase Discretization
+
+::: {layout-ncol=2}
+- Interface divides domain into regions
+- Each phase has its own heat equation
+- Coupled via jump conditions at interface
+- Unknowns: Bulk temperature and interface temperature
+
+![](images/cut_cell_with_conditions.svg){width=50% fig-align="center"}
+:::
+
+---
+
 ## Cut-Cell Discretization
 
-For cells cut by an interface:
+$$
+\begin{aligned}
+\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &= S_i \quad \text{in } \Omega_i, \quad i=1,2 \\
+\end{aligned}
+$$
+
+Integrating over control volume and integrating in time:
 
 $$
-V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}) + F_{\Gamma} + S_i V_i \right]
+\int_{\Omega_i} (T^{n+1} - T^n) \, dV = \Delta t \left[ \int_{\partial\Omega_i \setminus \Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS + \int_{\Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS + \int_{\Omega_i} \tilde{S} \, dV \right]
 $$
 
 ::: {layout-ncol=2}
-- Regular faces treated with standard FV
-- Interface flux depends on boundary conditions
-- ⚠️ **No need for ghost cells or extrapolation**
-- Assembled into global linear system with interface conditions
+- Standard finite volume integration
+- Split boundary into regular faces and interface
+- Interface requires special treatment
+- Ensures conservation across phases
 
 ![](images/interface_cut_cell_formulation.png){width=100% fig-align="center"}
 :::
 
 ---
 
+## Cut-Cell Discretization
+
+After discretization for cells cut by the interface:
+
+$$
+V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}) + F_{\Gamma} + S_i V_i \right]
+$$
+
+Interface flux $F_{\Gamma}$ depends on boundary conditions:
+
+- **Dirichlet**: $T=g(\mathbf{x})$ → $F_{\Gamma} = k A_{\Gamma} \nabla_{\Gamma}(\tilde{T})$
+- **Neumann**: $k \nabla T \cdot \mathbf{n} = q_{\Gamma}$ → $F_{\Gamma} = q_{\Gamma} A_{\Gamma}$
+- **Robin**: $\alpha T + \beta k \nabla T \cdot \mathbf{n} = g$
+
+---
+
+## Discretized System
+
+$$
+\begin{bmatrix}
+\text{Bulk part Heat Equation} & \text{Interface part Heat Equation} \\
+\text{Interface part BC} & \text{Interface part BC}
+\end{bmatrix}
+\begin{bmatrix}
+T^{n+1}_{\text{bulk}} \\
+T^{n+1}_{\text{interface}}
+\end{bmatrix} =
+RHS
+$$
+
+- Implicit time-stepping
+- Coupling between bulk and interface terms
+- Enforce boundary conditions directly in the system
+- ⚠️ **No need for ghost cells or extrapolation**
+
+--- 
+
 ## Validation: 2D Two-Phase Heat Equation
 
 To validate the method, [see @2025TwoPhase]
+
 $\Omega_1$ is a disk with radius $R$ in a unit square domain $\Omega_2$
 
 ::: {#fig-heat2 layout-ncol=2}
@@ -121,13 +161,12 @@ $\Omega_1$ is a disk with radius $R$ in a unit square domain $\Omega_2$
 Second-order convergence in $L^2$ norm for regular cells, superlinear for cut cells
 :::
 
-# Moving Interfaces
+# Cut Cell Method for moving interfaces
 
 ## Space-Time Approach
 
 - Combine time with spatial domain (extrude cells across $\Delta t$)
-- Handles changing domains and topologies
-- Preserves conservation across time steps
+- Preserves conservation across time steps especially for discrete events
 
 ![From 1D Space to 2D Space-Time](images/space_time.gif){width="80%" fig-align="center"}
 
@@ -264,7 +303,7 @@ Where:
 
 - **Cut-cell method for two-phase problems**
   - Conservation guaranteed
-  - Second-order accurate
+  - Superlinear convergence
   - No interpolation needed for boundary conditions
 
 - **Space-time framework for moving interfaces**
@@ -289,9 +328,8 @@ Where:
 ![](images/Domain-decomposition.png){width=80%}
 :::
 
-# Thank You!
-
-Questions?
+# Questions ?
+Thank you for your attention!
 
 # Appendix {.appendix visibility="uncounted"}
 
