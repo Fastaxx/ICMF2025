@@ -32,29 +32,24 @@ format:
 - **Phase Change:** Solid ⇄ liquid, driven by latent heat
 - **Applications:** Material processing, ice melting, crystal growth ...
 
-![](images/ice.jpg){width=0% fig-align="center"}
+![](images/ice.jpg){fig-align="center"}
 
 ---
 
 ## Stefan-type Problems
 
-::: {layout-ncol=2}
 - Classical phase change problems where a moving boundary separates phases
 - Interface position $s(t)$ depends on temperature gradients $\nabla T_i$
-
-![](images/ice_melting.gif){width=70% fig-align="center"}
-:::
-
-**Key Equation (Two-Phase Stefan)**
-
 $$
 \begin{aligned}
-&\text{Find } T_i(x,t)\ \text{and interface } s(t) \text{ such that:}\\
+&\text{For i=1,2, find } T_i(x,t)\ \text{and interface } s(t) \text{ such that:}\\
 &\quad \partial_t T_i - \nabla\cdot(k_i\,\nabla T_i) = 0, \quad x \in \Omega_i(t),\\
 &\quad T_i(s(t),t) = T_m, \quad 
 \rho\,L\,\frac{ds}{dt} \;=\; ⟦ k_i\,\nabla T_i \cdot \mathbf{n}⟧.
 \end{aligned}
 $$
+
+![](images/ice_melting.gif){width=70% fig-align="center"}
 
 ---
 
@@ -75,10 +70,16 @@ $$
 ## Two-Phase Discretization
 
 ::: {layout-ncol=2}
+::: {.incremental}
 - Interface divides domain into regions
-- Each phase has its own heat equation
-- Coupled via jump conditions at interface
+- 3 types of cells:
+  - Fluid cells 
+  - Cut cells (intersected by interface)
+  - Solid cells
+- 1 set of equations for each phase
+- 1 set of equations for the interface
 - Unknowns: Bulk temperature and interface temperature
+:::
 
 ![](images/cut_cell_with_conditions.svg){width=50% fig-align="center"}
 :::
@@ -89,21 +90,19 @@ $$
 
 $$
 \begin{aligned}
-\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &= S_i \quad \text{in } \Omega_i, \quad i=1,2 \\
+\frac{\partial T}{\partial t} - \nabla \cdot (k \nabla T) &= S 
 \end{aligned}
 $$
 
 Integrating over control volume and integrating in time:
 
 $$
-\int_{\Omega_i} (T^{n+1} - T^n) \, dV = \Delta t \left[ \int_{\partial\Omega_i \setminus \Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS + \int_{\Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS + \int_{\Omega_i} \tilde{S} \, dV \right]
+\int_{\Omega_i} (T^{n+1} - T^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_i \setminus \Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \color{red}{\int_{\Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \int_{\Omega_i} \tilde{S} \, dV \right]
 $$
 
 ::: {layout-ncol=2}
-- Standard finite volume integration
-- Split boundary into regular faces and interface
-- Interface requires special treatment
-- Ensures conservation across phases
+where 
+$$\tilde{T} = \theta T^{n+1} + (1-\theta)T^n$$
 
 ![](images/interface_cut_cell_formulation.png){width=100% fig-align="center"}
 :::
@@ -115,14 +114,14 @@ $$
 After discretization for cells cut by the interface:
 
 $$
-V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}) + F_{\Gamma} + S_i V_i \right]
+V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}_i) + F_i^{\Gamma} + S_i V_i \right]
 $$
 
-Interface flux $F_{\Gamma}$ depends on boundary conditions:
+Interface flux $F_i^{\Gamma}$ depends on boundary conditions:
 
-- **Dirichlet**: $T=g(\mathbf{x})$ → $F_{\Gamma} = k A_{\Gamma} \nabla_{\Gamma}(\tilde{T})$
-- **Neumann**: $k \nabla T \cdot \mathbf{n} = q_{\Gamma}$ → $F_{\Gamma} = q_{\Gamma} A_{\Gamma}$
-- **Robin**: $\alpha T + \beta k \nabla T \cdot \mathbf{n} = g$
+- **Dirichlet**: $T=g(\mathbf{x})$ → $F_i^{\Gamma} = k A_{\Gamma} \nabla_{\Gamma}(\tilde{T}_i)$
+- **Neumann**: $k \nabla T \cdot \mathbf{n} = q_{\Gamma}$ → $F_i^{\Gamma} = q_{\Gamma} A_{\Gamma}$
+- **Robin**: $\alpha T + \beta k \nabla T \cdot \mathbf{n} = g$ → Linear combination of Dirichlet and Neumann
 
 ---
 
@@ -130,12 +129,16 @@ Interface flux $F_{\Gamma}$ depends on boundary conditions:
 
 $$
 \begin{bmatrix}
-\text{Bulk part Heat Equation} & \text{Interface part Heat Equation} \\
-\text{Interface part BC} & \text{Interface part BC}
+M_{11} & M_{12} & 0 & 0 \\
+0 & M_{22} & 0 & M_{24} \\
+0 & 0 & M_{33} & M_{34} \\
+M_{41} & M_{42} & M_{43} & M_{44}
 \end{bmatrix}
 \begin{bmatrix}
-T^{n+1}_{\text{bulk}} \\
-T^{n+1}_{\text{interface}}
+T^{n+1}_{\text{bulk 1}} \\
+T^{n+1}_{\text{interface 1}} \\
+T^{n+1}_{\text{bulk 2}} \\
+T^{n+1}_{\text{interface 2}}
 \end{bmatrix} =
 RHS
 $$
@@ -147,9 +150,31 @@ $$
 
 --- 
 
+## Validation Case: 2D Two-Phase Heat Equation
+
+$\Omega_1$ is a disk with radius $R$. $\Omega_2$ is the complement of $\Omega_1$ in the unit square.
+
+$$
+\begin{aligned}
+\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &= 0 \quad \text{in } \Omega_i, \quad i=1,2 \\
+T_1 - \alpha_2 T_2 &= 0 \quad \text{on } \Gamma, \\
+k_1 \nabla T_1 \cdot \mathbf{n} - k_2 \nabla T_2 \cdot \mathbf{n} &= 0 \quad \text{on } \Gamma
+\end{aligned}
+$$
+
+Analytical solution:
+$$
+\small
+\begin{aligned}
+T_1(r,t) &= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_2(r,t) &= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+\end{aligned}
+$$
+
+---
+
 ## Validation: 2D Two-Phase Heat Equation
 
-To validate the method, [see @2025TwoPhase]
 
 $\Omega_1$ is a disk with radius $R$ in a unit square domain $\Omega_2$
 
@@ -184,7 +209,7 @@ Second-order convergence in $L^2$ norm for regular cells, superlinear for cut ce
 
 ---
 
-## VOF Advection vs. Fixed-Point Method
+## VOF Advection vs. Iterative Method
 
 ::: {layout-ncol="2"}
 ::: {.column}
@@ -203,16 +228,16 @@ $$
 :::
 
 ::: {.column}
-**Our Fixed-Point Method:**
+**Our Iterative Method:**
+
 
 $$
-\rho L \frac{ds}{dt} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \Rightarrow V_i^{n+1,(k+1)} = V_i^n + \text{res}_i^{(k)}
+\rho L \frac{\partial s}{\partial t} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0
 $$
 
 - **Advantages:**
-  - Direct enforcement of Stefan condition
-  - Guaranteed conservation
-  - No artificial velocity field needed
+  - Enforces conservation
+  - Iteratively updates interface
 
 ![Newton-Based Schematic](images/rootfindingnewton.jpg){width=55%}
 :::
@@ -220,55 +245,35 @@ $$
 
 ---
 
-## Fixed-Point Iteration for Interface Tracking
+## Newton Iteration for Interface Tracking
 
-- **Key Challenge:** Interface position depends on temperature field, and vice versa
-- **Stefan Condition:** $\rho\,L\,\dot{s} = ⟦\mathbf{q}\cdot\mathbf{n}⟧$
+- **Interface Representation** : Parametrization with Height functions $y=H(x)$
 
-We formulate this as a fixed-point problem on cell volumes:
+- **Stefan Condition:** $\rho\,L\,\dot{s} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0$
 
-$$V_i^{n+1,(k+1)} = V_i^n + \text{res}_i^{(k)}$$
+We formulate this as a newton iteration problem on the interface height function:
+
+$$H^{n+1,(k+1)}_i = H^{n+1,(k)}_i - F_i^{(k)}$$
 
 Where:
 
-- $V_i^{n+1,(k)}$ is the cell volume at iteration $k$
-- $V_i^n$ is the initial cell volume
-- $\text{res}_i^{(k)}$ is the residual based on the Stefan condition
+- $H_i^{n+1,(k+1)}$ is the new interface representation
+- $H_i^{n+1,(k)}$ is the previous interface representation
+- $F_i^{(k)}$ is the residual based on the Stefan condition
 
 ---
 
 ## Fixed-Point Theoretical Framework
 
-- Our interface update can be written as: $V^{n+1,(k+1)} = f(V^{n+1,(k)})$
-- **Banach Fixed-Point Theorem** guarantees:
-  - Existence and uniqueness of a fixed point
-  - Convergence if $f$ is a contraction mapping
+- Our interface update: $H^{n+1,(k+1)} = f(H^{n+1,(k)})$
+- **Banach Fixed-Point Theorem** guarantees convergence for contracting mappings and existence of a (unique) fixed point
 
-::: {layout-ncol=2}
+- Observed that : 
+  - Lipschitz constant $L < 1$
 
-- For some $L < 1$: $|f(x) - f(y)| \leq L|x - y|$
-- Error decreases by factor $L$ each iteration
-- After $n$ iterations: $|V_n - V^*| \leq \frac{L^n}{1-L}|V_0 - V^*|$
 
-![](images/fixedpoint/stefan_fixed_point_summary.png){width=90%}
-:::
+![](images/stefan_fixed_point_analysis_step2.png){height=700 fig-align="center"}
 
----
-
-## Conservation Properties
-
-- **Volume Conservation:** Our method directly enforces the Stefan condition at each iteration
-- **Energy Conservation:**
-  - Interface moves to satisfy heat flux balance: $\rho\,L\,(V_i^{n+1} - V_i^n) = \mathcal{F}_\Gamma$
-  - Even nearly-vanishing dead cells are computed to preserve global energy
-
-::: {layout-ncol=2}
-- No artificial energy creation/loss
-- Maintains sharp interface (no smearing)
-- Applicable to non-trivial phase change problems
-
-![Temperature profile with conservation](images/temp_stef_1d_2ph.png){width=90%}
-:::
 
 ---
 
@@ -281,7 +286,7 @@ Where:
 ::: {layout-ncol="2"}
 ![Interface convergence](images/stefan_2d_Inter_Conv.png){width=100%}
 
-![Temperature profile](images/stefan_2D_2ph_temp3.gif){width=100% fig-align="center"}
+![Interface position](images/stefan_1D_interface.png){width=100%}
 :::
 
 ---
@@ -291,10 +296,31 @@ Where:
 - Linear convergence observed ($O(k^{1.1})$)
 - Efficient with good initial guess (extrapolation or velocity-based)
 
-::: {layout-ncol="2"}
-![Residual decay](images/stefan_1D_residual.png){width=80%}
+![Residuals (log10)](images/residual_withguess.png){width=80%}
 
-![Iterations per timestep](images/residual_withguess.png){width=80%}
+---
+
+## Mullins-Sekerka Instability Test
+
+::: {layout-ncol=2}
+::: {.column}
+**Interface Perturbation**
+
+- Small waves on solid-liquid interface
+- Some modes grow, some decay
+- Growth rate matches theoretical prediction
+
+![Growth amplitude](images/growing_interface_ampl.png){width=90%}
+:::
+
+::: {.column}
+**Pattern Formation**
+
+![Growing dendrite](images/mullins_sekerka_interface){width=100%}
+
+- Initial small perturbation
+- Develops into dendrite pattern
+:::
 :::
 
 # Conclusion & Perspectives
@@ -314,24 +340,27 @@ Where:
   - Fixed-point iterative procedure
   - Enforces physics-based interface movement
 
----
-
-## Future Work
-
-- Front-tracking approach for interface representation
-- Extension to Navier-Stokes equations for two-phase flows
-- Preconditioning strategies and parallelization
-
-::: {layout-ncol=2}
-![](images/star_evolution.gif){width=80%}
-
-![](images/Domain-decomposition.png){width=80%}
-:::
 
 # Questions ?
 Thank you for your attention!
 
 # Appendix {.appendix visibility="uncounted"}
+
+## Future Work
+
+- Front-tracking approach for interface representation :
+  - Interface represented by a set of markers
+  - Optimization problem to update interface position
+  - Non-linear least squares solver for interface update
+- Extension to Navier-Stokes equations for two-phase flows :
+  - Coupling with momentum equations
+  - Implicit treatment of interface coupling
+  - Fully coupled system of equations
+- Preconditioning strategies and parallelization : 
+  - Efficient solvers for large systems
+  - Parallel implementation
+
+
 
 ## Front-Tracking Enhancement
 
