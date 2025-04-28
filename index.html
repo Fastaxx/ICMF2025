@@ -6,8 +6,8 @@
 <script src="prez_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="prez_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="prez_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-7fd0fe4245b865325b8ce8dccb604d59.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.6.43">
+<link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-bcbce66894bfa8e7e94e40e0186b9bb8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.29">
 
   <meta name="dcterms.date" content="2025-04-28">
   <title>Numerical Modeling of Heat &amp; Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation</title>
@@ -32,7 +32,6 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
-      margin-bottom: 0em;
     }
     .hanging-indent div.csl-entry {
       margin-left:2em;
@@ -49,7 +48,7 @@
     div.csl-indent {
       margin-left: 2em;
     }  </style>
-  <link rel="stylesheet" href="prez_files/libs/revealjs/dist/theme/quarto-2f366650f320edcfcf53d73c80250a32.css">
+  <link rel="stylesheet" href="prez_files/libs/revealjs/dist/theme/quarto-f563837468303362081e247dddd440d0.css">
   <link rel="stylesheet" href="styles.css">
   <link href="prez_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="prez_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -188,39 +187,22 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <li><strong>Applications:</strong> Material processing, ice melting, crystal growth …</li>
 </ul>
 
-<img data-src="images/ice.jpg" class="quarto-figure quarto-figure-center r-stretch" style="width:0.0%"></section>
+<img data-src="images/ice.jpg" class="quarto-figure quarto-figure-center r-stretch"></section>
 <section id="stefan-type-problems" class="slide level2">
 <h2>Stefan-type Problems</h2>
-<div>
-
-</div>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
 <li>Classical phase change problems where a moving boundary separates phases</li>
-<li>Interface position <span class="math inline">\(s(t)\)</span> depends on temperature gradients <span class="math inline">\(\nabla T_i\)</span></li>
-</ul>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="images/ice_melting.gif" class="quarto-figure quarto-figure-center"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-<p><strong>Key Equation (Two-Phase Stefan)</strong></p>
-<p><span class="math display">\[
+<li>Interface position <span class="math inline">\(s(t)\)</span> depends on temperature gradients <span class="math inline">\(\nabla T_i\)</span> <span class="math display">\[
 \begin{aligned}
-&amp;\text{Find } T_i(x,t)\ \text{and interface } s(t) \text{ such that:}\\
+&amp;\text{For i=1,2, find } T_i(x,t)\ \text{and interface } s(t) \text{ such that:}\\
 &amp;\quad \partial_t T_i - \nabla\cdot(k_i\,\nabla T_i) = 0, \quad x \in \Omega_i(t),\\
 &amp;\quad T_i(s(t),t) = T_m, \quad
 \rho\,L\,\frac{ds}{dt} \;=\; ⟦ k_i\,\nabla T_i \cdot \mathbf{n}⟧.
 \end{aligned}
-\]</span></p>
-</section>
+\]</span></li>
+</ul>
+
+<img data-src="images/ice_melting.gif" class="quarto-figure quarto-figure-center r-stretch" style="width:70.0%"></section>
 <section id="primary-challenges" class="slide level2">
 <h2>Primary Challenges</h2>
 <div class="border p-2">
@@ -269,17 +251,20 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 </section>
 <section id="two-phase-discretization" class="slide level2">
 <h2>Two-Phase Discretization</h2>
-<div>
-
-</div>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
-<li>Interface divides domain into regions</li>
-<li>Each phase has its own heat equation</li>
-<li>Coupled via jump conditions at interface</li>
-<li>Unknowns: Bulk temperature and interface temperature</li>
+<li class="fragment">Interface divides domain into regions</li>
+<li class="fragment">3 types of cells:
+<ul>
+<li class="fragment">Fluid cells</li>
+<li class="fragment">Cut cells (intersected by interface)</li>
+<li class="fragment">Solid cells</li>
+</ul></li>
+<li class="fragment">1 set of equations for each phase</li>
+<li class="fragment">1 set of equations for the interface</li>
+<li class="fragment">Unknowns: Bulk temperature and interface temperature</li>
 </ul>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
@@ -296,25 +281,17 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <h2>Cut-Cell Discretization</h2>
 <p><span class="math display">\[
 \begin{aligned}
-\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &amp;= S_i \quad \text{in } \Omega_i, \quad i=1,2 \\
+\frac{\partial T}{\partial t} - \nabla \cdot (k \nabla T) &amp;= S
 \end{aligned}
 \]</span></p>
 <p>Integrating over control volume and integrating in time:</p>
 <p><span class="math display">\[
-\int_{\Omega_i} (T^{n+1} - T^n) \, dV = \Delta t \left[ \int_{\partial\Omega_i \setminus \Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS + \int_{\Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS + \int_{\Omega_i} \tilde{S} \, dV \right]
+\int_{\Omega_i} (T^{n+1} - T^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_i \setminus \Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \color{red}{\int_{\Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \int_{\Omega_i} \tilde{S} \, dV \right]
 \]</span></p>
-<div>
-
-</div>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<ul>
-<li>Standard finite volume integration</li>
-<li>Split boundary into regular faces and interface</li>
-<li>Interface requires special treatment</li>
-<li>Ensures conservation across phases</li>
-</ul>
+<p>where <span class="math display">\[\tilde{T} = \theta T^{n+1} + (1-\theta)T^n\]</span></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
@@ -330,25 +307,29 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <h2>Cut-Cell Discretization</h2>
 <p>After discretization for cells cut by the interface:</p>
 <p><span class="math display">\[
-V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}) + F_{\Gamma} + S_i V_i \right]
+V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}_i) + F_i^{\Gamma} + S_i V_i \right]
 \]</span></p>
-<p>Interface flux <span class="math inline">\(F_{\Gamma}\)</span> depends on boundary conditions:</p>
+<p>Interface flux <span class="math inline">\(F_i^{\Gamma}\)</span> depends on boundary conditions:</p>
 <ul>
-<li><strong>Dirichlet</strong>: <span class="math inline">\(T=g(\mathbf{x})\)</span> → <span class="math inline">\(F_{\Gamma} = k A_{\Gamma} \nabla_{\Gamma}(\tilde{T})\)</span></li>
-<li><strong>Neumann</strong>: <span class="math inline">\(k \nabla T \cdot \mathbf{n} = q_{\Gamma}\)</span> → <span class="math inline">\(F_{\Gamma} = q_{\Gamma} A_{\Gamma}\)</span></li>
-<li><strong>Robin</strong>: <span class="math inline">\(\alpha T + \beta k \nabla T \cdot \mathbf{n} = g\)</span></li>
+<li><strong>Dirichlet</strong>: <span class="math inline">\(T=g(\mathbf{x})\)</span> → <span class="math inline">\(F_i^{\Gamma} = k A_{\Gamma} \nabla_{\Gamma}(\tilde{T}_i)\)</span></li>
+<li><strong>Neumann</strong>: <span class="math inline">\(k \nabla T \cdot \mathbf{n} = q_{\Gamma}\)</span> → <span class="math inline">\(F_i^{\Gamma} = q_{\Gamma} A_{\Gamma}\)</span></li>
+<li><strong>Robin</strong>: <span class="math inline">\(\alpha T + \beta k \nabla T \cdot \mathbf{n} = g\)</span> → Linear combination of Dirichlet and Neumann</li>
 </ul>
 </section>
 <section id="discretized-system" class="slide level2">
 <h2>Discretized System</h2>
 <p><span class="math display">\[
 \begin{bmatrix}
-\text{Bulk part Heat Equation} &amp; \text{Interface part Heat Equation} \\
-\text{Interface part BC} &amp; \text{Interface part BC}
+M_{11} &amp; M_{12} &amp; 0 &amp; 0 \\
+0 &amp; M_{22} &amp; 0 &amp; M_{24} \\
+0 &amp; 0 &amp; M_{33} &amp; M_{34} \\
+M_{41} &amp; M_{42} &amp; M_{43} &amp; M_{44}
 \end{bmatrix}
 \begin{bmatrix}
-T^{n+1}_{\text{bulk}} \\
-T^{n+1}_{\text{interface}}
+T^{n+1}_{\text{bulk 1}} \\
+T^{n+1}_{\text{interface 1}} \\
+T^{n+1}_{\text{bulk 2}} \\
+T^{n+1}_{\text{interface 2}}
 \end{bmatrix} =
 RHS
 \]</span></p>
@@ -359,9 +340,26 @@ RHS
 <li>⚠️ <strong>No need for ghost cells or extrapolation</strong></li>
 </ul>
 </section>
+<section id="validation-case-2d-two-phase-heat-equation" class="slide level2">
+<h2>Validation Case: 2D Two-Phase Heat Equation</h2>
+<p><span class="math inline">\(\Omega_1\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_2\)</span> is the complement of <span class="math inline">\(\Omega_1\)</span> in the unit square.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &amp;= 0 \quad \text{in } \Omega_i, \quad i=1,2 \\
+T_1 - \alpha_2 T_2 &amp;= 0 \quad \text{on } \Gamma, \\
+k_1 \nabla T_1 \cdot \mathbf{n} - k_2 \nabla T_2 \cdot \mathbf{n} &amp;= 0 \quad \text{on } \Gamma
+\end{aligned}
+\]</span></p>
+<p>Analytical solution: <span class="math display">\[
+\small
+\begin{aligned}
+T_1(r,t) &amp;= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_2(r,t) &amp;= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+\end{aligned}
+\]</span></p>
+</section>
 <section id="validation-2d-two-phase-heat-equation" class="slide level2">
 <h2>Validation: 2D Two-Phase Heat Equation</h2>
-<p>To validate the method, <span class="citation" data-cites="2025TwoPhase">(see <a href="#/references" role="doc-biblioref" onclick="">TwoPhase 2025</a>)</span></p>
 <p><span class="math inline">\(\Omega_1\)</span> is a disk with radius <span class="math inline">\(R\)</span> in a unit square domain <span class="math inline">\(\Omega_2\)</span></p>
 <div id="fig-heat2" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig">
@@ -418,11 +416,8 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <li>Our space-time approach preserves conservation even with changing domain</li>
 </ul>
 </section>
-<section id="vof-advection-vs.-fixed-point-method" class="slide level2">
-<h2>VOF Advection vs.&nbsp;Fixed-Point Method</h2>
-<div>
-
-</div>
+<section id="vof-advection-vs.-iterative-method" class="slide level2">
+<h2>VOF Advection vs.&nbsp;Iterative Method</h2>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
@@ -445,16 +440,15 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </figure>
 </div>
 </div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Our Fixed-Point Method:</strong></p>
+<p><strong>Our Iterative Method:</strong></p>
 <p><span class="math display">\[
-\rho L \frac{ds}{dt} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \Rightarrow V_i^{n+1,(k+1)} = V_i^n + \text{res}_i^{(k)}
+\rho L \frac{\partial s}{\partial t} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0
 \]</span></p>
 <ul>
 <li><strong>Advantages:</strong>
 <ul>
-<li>Direct enforcement of Stefan condition</li>
-<li>Guaranteed conservation</li>
-<li>No artificial velocity field needed</li>
+<li>Enforces conservation</li>
+<li>Iteratively updates interface</li>
 </ul></li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
@@ -466,80 +460,35 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div></div>
 </div>
 </section>
-<section id="fixed-point-iteration-for-interface-tracking" class="slide level2">
-<h2>Fixed-Point Iteration for Interface Tracking</h2>
+<section id="newton-iteration-for-interface-tracking" class="slide level2">
+<h2>Newton Iteration for Interface Tracking</h2>
 <ul>
-<li><strong>Key Challenge:</strong> Interface position depends on temperature field, and vice versa</li>
-<li><strong>Stefan Condition:</strong> <span class="math inline">\(\rho\,L\,\dot{s} = ⟦\mathbf{q}\cdot\mathbf{n}⟧\)</span></li>
+<li><p><strong>Interface Representation</strong> : Parametrization with Height functions <span class="math inline">\(y=H(x)\)</span></p></li>
+<li><p><strong>Stefan Condition:</strong> <span class="math inline">\(\rho\,L\,\dot{s} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0\)</span></p></li>
 </ul>
-<p>We formulate this as a fixed-point problem on cell volumes:</p>
-<p><span class="math display">\[V_i^{n+1,(k+1)} = V_i^n + \text{res}_i^{(k)}\]</span></p>
+<p>We formulate this as a newton iteration problem on the interface height function:</p>
+<p><span class="math display">\[H^{n+1,(k+1)}_i = H^{n+1,(k)}_i - F_i^{(k)}\]</span></p>
 <p>Where:</p>
 <ul>
-<li><span class="math inline">\(V_i^{n+1,(k)}\)</span> is the cell volume at iteration <span class="math inline">\(k\)</span></li>
-<li><span class="math inline">\(V_i^n\)</span> is the initial cell volume</li>
-<li><span class="math inline">\(\text{res}_i^{(k)}\)</span> is the residual based on the Stefan condition</li>
+<li><span class="math inline">\(H_i^{n+1,(k+1)}\)</span> is the new interface representation</li>
+<li><span class="math inline">\(H_i^{n+1,(k)}\)</span> is the previous interface representation</li>
+<li><span class="math inline">\(F_i^{(k)}\)</span> is the residual based on the Stefan condition</li>
 </ul>
 </section>
 <section id="fixed-point-theoretical-framework" class="slide level2">
 <h2>Fixed-Point Theoretical Framework</h2>
 <ul>
-<li>Our interface update can be written as: <span class="math inline">\(V^{n+1,(k+1)} = f(V^{n+1,(k)})\)</span></li>
-<li><strong>Banach Fixed-Point Theorem</strong> guarantees:
+<li><p>Our interface update: <span class="math inline">\(H^{n+1,(k+1)} = f(H^{n+1,(k)})\)</span></p></li>
+<li><p><strong>Banach Fixed-Point Theorem</strong> guarantees convergence for contracting mappings and existence of a (unique) fixed point</p></li>
+<li><p>Observed that :</p>
 <ul>
-<li>Existence and uniqueness of a fixed point</li>
-<li>Convergence if <span class="math inline">\(f\)</span> is a contraction mapping</li>
+<li>Lipschitz constant <span class="math inline">\(L &lt; 1\)</span></li>
 </ul></li>
 </ul>
-<div>
-
-</div>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<ul>
-<li>For some <span class="math inline">\(L &lt; 1\)</span>: <span class="math inline">\(|f(x) - f(y)| \leq L|x - y|\)</span></li>
-<li>Error decreases by factor <span class="math inline">\(L\)</span> each iteration</li>
-<li>After <span class="math inline">\(n\)</span> iterations: <span class="math inline">\(|V_n - V^*| \leq \frac{L^n}{1-L}|V_0 - V^*|\)</span></li>
-</ul>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img data-src="images/fixedpoint/stefan_fixed_point_summary.png"></p>
-</div>
-</div>
-</div>
-</section>
-<section id="conservation-properties" class="slide level2">
-<h2>Conservation Properties</h2>
-<ul>
-<li><strong>Volume Conservation:</strong> Our method directly enforces the Stefan condition at each iteration</li>
-<li><strong>Energy Conservation:</strong>
-<ul>
-<li>Interface moves to satisfy heat flux balance: <span class="math inline">\(\rho\,L\,(V_i^{n+1} - V_i^n) = \mathcal{F}_\Gamma\)</span></li>
-<li>Even nearly-vanishing dead cells are computed to preserve global energy</li>
-</ul></li>
-</ul>
-<div>
-
-</div>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<ul>
-<li>No artificial energy creation/loss</li>
-<li>Maintains sharp interface (no smearing)</li>
-<li>Applicable to non-trivial phase change problems</li>
-</ul>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/temp_stef_1d_2ph.png" style="width:90.0%"></p>
-<figcaption>Temperature profile with conservation</figcaption>
+<p><img data-src="images/stefan_fixed_point_analysis_step2.png" class="quarto-figure quarto-figure-center" height="700"></p>
 </figure>
-</div>
-</div>
-</div>
 </div>
 </section>
 <section id="test-case-2d-stefan-problem" class="slide level2">
@@ -549,9 +498,6 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <li>Initial temperature <span class="math inline">\(T_0 = 0\)</span> (cooled melting)</li>
 <li>Dirichlet boundary condition <span class="math inline">\(T = 1\)</span></li>
 </ul>
-<div>
-
-</div>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
@@ -565,8 +511,8 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/stefan_2D_2ph_temp3.gif" style="width:100.0%"></p>
-<figcaption>Temperature profile</figcaption>
+<p><img data-src="images/stefan_1D_interface.png" style="width:100.0%"></p>
+<figcaption>Interface position</figcaption>
 </figure>
 </div>
 </div>
@@ -579,28 +525,38 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <li>Linear convergence observed (<span class="math inline">\(O(k^{1.1})\)</span>)</li>
 <li>Efficient with good initial guess (extrapolation or velocity-based)</li>
 </ul>
-<div>
 
-</div>
+<img data-src="images/residual_withguess.png" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">Residuals (log10)</p></section>
+<section id="mullins-sekerka-instability-test" class="slide level2">
+<h2>Mullins-Sekerka Instability Test</h2>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Interface Perturbation</strong></p>
+<ul>
+<li>Small waves on solid-liquid interface</li>
+<li>Some modes grow, some decay</li>
+<li>Growth rate matches theoretical prediction</li>
+</ul>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/stefan_1D_residual.png" style="width:80.0%"></p>
-<figcaption>Residual decay</figcaption>
+<p><img data-src="images/growing_interface_ampl.png" style="width:90.0%"></p>
+<figcaption>Growth amplitude</figcaption>
 </figure>
 </div>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Pattern Formation</strong></p>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/residual_withguess.png" style="width:80.0%"></p>
-<figcaption>Iterations per timestep</figcaption>
+<p><img data-src="images/mullins_sekerka_interface.png" style="width:100.0%"></p>
+<figcaption>Growing dendrite</figcaption>
 </figure>
 </div>
-</div>
-</div>
+<ul>
+<li>Initial small perturbation</li>
+<li>Develops into dendrite pattern</li>
+</ul>
+</div></div>
 </div>
 </section></section>
 <section>
@@ -628,27 +584,6 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <li>Enforces physics-based interface movement</li>
 </ul></li>
 </ul>
-</section>
-<section id="future-work" class="slide level2">
-<h2>Future Work</h2>
-<ul>
-<li>Front-tracking approach for interface representation</li>
-<li>Extension to Navier-Stokes equations for two-phase flows</li>
-<li>Preconditioning strategies and parallelization</li>
-</ul>
-<div>
-
-</div>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img data-src="images/star_evolution.gif"></p>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img data-src="images/Domain-decomposition.png"></p>
-</div>
-</div>
-</div>
 </section></section>
 <section id="questions" class="title-slide slide level1 center">
 <h1>Questions ?</h1>
@@ -660,6 +595,28 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <h1>Appendix</h1>
 
 </section>
+<section id="future-work" class="slide level2" data-visibility="uncounted">
+<h2>Future Work</h2>
+<ul>
+<li>Front-tracking approach for interface representation :
+<ul>
+<li>Interface represented by a set of markers</li>
+<li>Optimization problem to update interface position</li>
+<li>Non-linear least squares solver for interface update</li>
+</ul></li>
+<li>Extension to Navier-Stokes equations for two-phase flows :
+<ul>
+<li>Coupling with momentum equations</li>
+<li>Implicit treatment of interface coupling</li>
+<li>Fully coupled system of equations</li>
+</ul></li>
+<li>Preconditioning strategies and parallelization :
+<ul>
+<li>Efficient solvers for large systems</li>
+<li>Parallel implementation</li>
+</ul></li>
+</ul>
+</section>
 <section id="front-tracking-enhancement" class="slide level2" data-visibility="uncounted">
 <h2>Front-Tracking Enhancement</h2>
 <ul>
@@ -670,9 +627,6 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 \mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}
 \]</span></p>
 <p>Where <span class="math inline">\(F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\mathbf{q}^\gamma\cdot\mathbf{n}⟧\)</span> is the Stefan condition residual</p>
-<div>
-
-</div>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
@@ -686,10 +640,8 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </section>
 <section id="references" class="slide level2 smaller scrollable" data-visibility="uncounted">
 <h2>References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-2025TwoPhase" class="csl-entry" role="listitem">
-TwoPhase. 2025. <span>“Two Phase Heat Equation with Homothetic Temperature Jump BC.”</span>
-</div>
+<div id="refs" role="list">
+
 </div>
 
 </section></section>
@@ -912,190 +864,172 @@ TwoPhase. 2025. <span>“Two Phase Heat Equation with Homothetic Temperature Jum
       });
     </script>
     <script id="quarto-html-after-body" type="application/javascript">
-    window.document.addEventListener("DOMContentLoaded", function (event) {
-      const toggleBodyColorMode = (bsSheetEl) => {
-        const mode = bsSheetEl.getAttribute("data-mode");
-        const bodyEl = window.document.querySelector("body");
-        if (mode === "dark") {
-          bodyEl.classList.add("quarto-dark");
-          bodyEl.classList.remove("quarto-light");
-        } else {
-          bodyEl.classList.add("quarto-light");
-          bodyEl.classList.remove("quarto-dark");
-        }
-      }
-      const toggleBodyColorPrimary = () => {
-        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-        if (bsSheetEl) {
-          toggleBodyColorMode(bsSheetEl);
-        }
-      }
-      toggleBodyColorPrimary();  
-      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
-      tabsets.forEach(function(tabset) {
-        const tabby = new Tabby('#' + tabset.id);
-      });
-      const isCodeAnnotation = (el) => {
-        for (const clz of el.classList) {
-          if (clz.startsWith('code-annotation-')) {                     
-            return true;
-          }
-        }
-        return false;
-      }
-      const onCopySuccess = function(e) {
-        // button target
-        const button = e.trigger;
-        // don't keep focus
-        button.blur();
-        // flash "checked"
-        button.classList.add('code-copy-button-checked');
-        var currentTitle = button.getAttribute("title");
-        button.setAttribute("title", "Copied!");
-        let tooltip;
-        if (window.bootstrap) {
-          button.setAttribute("data-bs-toggle", "tooltip");
-          button.setAttribute("data-bs-placement", "left");
-          button.setAttribute("data-bs-title", "Copied!");
-          tooltip = new bootstrap.Tooltip(button, 
-            { trigger: "manual", 
-              customClass: "code-copy-button-tooltip",
-              offset: [0, -8]});
-          tooltip.show();    
-        }
-        setTimeout(function() {
-          if (tooltip) {
-            tooltip.hide();
-            button.removeAttribute("data-bs-title");
-            button.removeAttribute("data-bs-toggle");
-            button.removeAttribute("data-bs-placement");
-          }
-          button.setAttribute("title", currentTitle);
-          button.classList.remove('code-copy-button-checked');
-        }, 1000);
-        // clear code selection
-        e.clearSelection();
-      }
-      const getTextToCopy = function(trigger) {
-          const codeEl = trigger.previousElementSibling.cloneNode(true);
-          for (const childEl of codeEl.children) {
-            if (isCodeAnnotation(childEl)) {
-              childEl.remove();
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
             }
           }
-          return codeEl.innerText;
-      }
-      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-        text: getTextToCopy
-      });
-      clipboard.on('success', onCopySuccess);
-      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-          text: getTextToCopy,
-          container: window.document.getElementById('quarto-embedded-source-code-modal')
-        });
-        clipboardModal.on('success', onCopySuccess);
-      }
-        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-        var mailtoRegex = new RegExp(/^mailto:/);
-          var filterRegex = new RegExp('/' + window.location.host + '/');
-        var isInternal = (href) => {
-            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          return false;
         }
-        // Inspect non-navigation links and adorn them if external
-     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-        for (var i=0; i<links.length; i++) {
-          const link = links[i];
-          if (!isInternal(link.href)) {
-            // undo the damage that might have been done by quarto-nav.js in the case of
-            // links that we want to consider external
-            if (link.dataset.originalHref !== undefined) {
-              link.href = link.dataset.originalHref;
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
             }
-          }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
         }
-      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-        const config = {
-          allowHTML: true,
-          maxWidth: 500,
-          delay: 100,
-          arrow: false,
-          appendTo: function(el) {
-              return el.closest('section.slide') || el.parentElement;
-          },
-          interactive: true,
-          interactiveBorder: 10,
-          theme: 'light-border',
-          placement: 'bottom-start',
-        };
-        if (contentFn) {
-          config.content = contentFn;
-        }
-        if (onTriggerFn) {
-          config.onTrigger = onTriggerFn;
-        }
-        if (onUntriggerFn) {
-          config.onUntrigger = onUntriggerFn;
-        }
-          config['offset'] = [0,0];
-          config['maxWidth'] = 700;
-        window.tippy(el, config); 
-      }
-      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-      for (var i=0; i<noterefs.length; i++) {
-        const ref = noterefs[i];
-        tippyHover(ref, function() {
-          // use id or data attribute instead here
-          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-          try { href = new URL(href).hash; } catch {}
-          const id = href.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note) {
-            return note.innerHTML;
-          } else {
-            return "";
-          }
-        });
-      }
-      const findCites = (el) => {
-        const parentEl = el.parentElement;
-        if (parentEl) {
-          const cites = parentEl.dataset.cites;
-          if (cites) {
-            return {
-              el,
-              cites: cites.split(' ')
-            };
-          } else {
-            return findCites(el.parentElement)
-          }
-        } else {
-          return undefined;
-        }
-      };
-      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-      for (var i=0; i<bibliorefs.length; i++) {
-        const ref = bibliorefs[i];
-        const citeInfo = findCites(ref);
-        if (citeInfo) {
-          tippyHover(citeInfo.el, function() {
-            var popup = window.document.createElement('div');
-            citeInfo.cites.forEach(function(cite) {
-              var citeDiv = window.document.createElement('div');
-              citeDiv.classList.add('hanging-indent');
-              citeDiv.classList.add('csl-entry');
-              var biblioDiv = window.document.getElementById('ref-' + cite);
-              if (biblioDiv) {
-                citeDiv.innerHTML = biblioDiv.innerHTML;
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
               }
-              popup.appendChild(citeDiv);
-            });
-            return popup.innerHTML;
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
           });
         }
-      }
-    });
-    </script>
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
     
 
 </body></html>
