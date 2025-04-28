@@ -1,0 +1,321 @@
+---
+title: "Numerical Modeling of Heat & Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation"
+authors: 
+  L. Libat, 
+  E. Chénier, 
+  C. Selçuk,
+  V. Le Chenadec 
+date: today
+date-format: long
+institute: "Multiscale Modeling and Simulation Laboratory, Gustave Eiffel University, Champs-sur-Marne, France"
+bibliography: references.bib
+highlight-style: github
+format:
+    revealjs: 
+        filters: [custom.lua]
+        theme: default
+        logo: images/msmelog.png
+        css: styles.css
+        slide-number: true
+        preview-links: auto
+        toc: true
+        toc-depth: 1
+        footer: |
+            <p>© 2025 L. Libat, V. Le Chenadec, E. Chénier, C.Selçuk </p>
+---
+
+# Introduction
+
+## Context & Challenges
+
+- **Interfacial Flows:** Two immiscible phases separated by a sharp interface
+- **Phase Change:** Solid ⇄ liquid, driven by latent heat
+- **Key Challenges:**
+  - Sharp interface representation
+  - Conservation properties
+  - Moving boundaries
+
+![Ice Formation](images/ice.jpg){width=80%}
+
+---
+
+## Cut-Cell Approach: Primary Difficulties
+
+::: {layout-ncol=2}
+::: {.column}
+1. **Sharp Interface on Cartesian Grids**
+2. **Interface Conditions**
+3. **Conservation**
+4. **Two-Fluid Formulation**
+:::
+
+::: {.column}
+![Cut-cell method](images/cut_cell_with_conditions.svg){width=100%}
+:::
+:::
+
+---
+
+## Stefan-type Problems
+
+- Moving boundary separates solid & liquid phases
+- Interface position depends on temperature gradients
+
+**Key Equation (Two-Phase Stefan)**
+$$
+\begin{aligned}
+\text{Find } T_i(x,t) \text{ and } s(t) \text{ such that:}\\
+\partial_t T_i - \nabla\cdot(k_i\,\nabla T_i) &= 0, \quad x \in \Omega_i(t),\\
+T_i(s(t),t) &= T_m,  \quad \text{on } \Gamma(t),\\
+\rho\,L\,\frac{ds}{dt} &= ⟦ k_i\,\nabla T_i \cdot \mathbf{n}⟧ \quad \text{on } \Gamma(t),\\
+\end{aligned}
+$$
+
+# Stationary Interfaces
+
+## Two-Phase Discretization
+
+- Interface divides computational domain into two regions
+- Each phase follows its own heat equation
+- Coupled through jump conditions at interface
+
+$$
+\begin{aligned}
+\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &= S_i \quad \text{in } \Omega_i, \quad i=1,2 \\
+⟦\alpha T⟧ &= g \quad \text{on } \Gamma \\
+⟦k \nabla T \cdot \mathbf{n}⟧ &= h \quad \text{on } \Gamma
+\end{aligned}
+$$
+
+---
+
+## Cut-Cell Discretization
+
+For cells cut by an interface:
+
+$$
+V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}) + F_{\Gamma} + S_i V_i \right]
+$$
+
+::: {layout-ncol=2}
+- Regular faces treated with standard FV
+- Interface flux depends on boundary conditions
+- ⚠️ **No need for ghost cells or extrapolation**
+- Assembled into global linear system with interface conditions
+
+![](images/interface_cut_cell_formulation.png){width=100% fig-align="center"}
+:::
+
+---
+
+## Validation: 2D Two-Phase Heat Equation
+
+To validate the method, [see @2025TwoPhase]
+$\Omega_1$ is a disk with radius $R$ in a unit square domain $\Omega_2$
+
+::: {#fig-heat2 layout-ncol=2}
+![Convergence Results](images/two_phase_conv.png){width=100%}
+
+![Temperature Field](images/heat_2d_2ph_henry_end.png){width=100%}
+
+Second-order convergence in $L^2$ norm for regular cells, superlinear for cut cells
+:::
+
+# Moving Interfaces
+
+## Space-Time Approach
+
+- Combine time with spatial domain (extrude cells across $\Delta t$)
+- Handles changing domains and topologies
+- Preserves conservation across time steps
+
+![From 1D Space to 2D Space-Time](images/space_time.gif){width="80%" fig-align="center"}
+
+---
+
+## Fresh/Dead Cell Problem
+
+- Cells may change status as interface moves:
+  - **Fresh cells:** Empty at $t^n$, wet at $t^{n+1}$
+  - **Dead cells:** Wet at $t^n$, empty at $t^{n+1}$
+
+![](images/fresh_dead_cells_visualization.png){width=80% fig-align="center"}
+
+- Our space-time approach preserves conservation even with changing domain
+
+---
+
+## VOF Advection vs. Fixed-Point Method
+
+::: {layout-ncol="2"}
+::: {.column}
+**Traditional VOF Approach:**
+
+$$
+\frac{\partial \alpha}{\partial t} + \nabla\cdot(\alpha\,\mathbf{u}) = 0
+$$
+
+- **Challenges:**
+  - Velocity extension near interface
+  - Numerical diffusion over time
+  - Operator splitting errors
+
+![VOF Advection Schematic](images/vof_advection.png){width=90%}
+:::
+
+::: {.column}
+**Our Fixed-Point Method:**
+
+$$
+\rho L \frac{ds}{dt} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \Rightarrow V_i^{n+1,(k+1)} = V_i^n + \text{res}_i^{(k)}
+$$
+
+- **Advantages:**
+  - Direct enforcement of Stefan condition
+  - Guaranteed conservation
+  - No artificial velocity field needed
+
+![Newton-Based Schematic](images/rootfindingnewton.jpg){width=55%}
+:::
+:::
+
+---
+
+## Fixed-Point Iteration for Interface Tracking
+
+- **Key Challenge:** Interface position depends on temperature field, and vice versa
+- **Stefan Condition:** $\rho\,L\,\dot{s} = ⟦\mathbf{q}\cdot\mathbf{n}⟧$
+
+We formulate this as a fixed-point problem on cell volumes:
+
+$$V_i^{n+1,(k+1)} = V_i^n + \text{res}_i^{(k)}$$
+
+Where:
+
+- $V_i^{n+1,(k)}$ is the cell volume at iteration $k$
+- $V_i^n$ is the initial cell volume
+- $\text{res}_i^{(k)}$ is the residual based on the Stefan condition
+
+---
+
+## Fixed-Point Theoretical Framework
+
+- Our interface update can be written as: $V^{n+1,(k+1)} = f(V^{n+1,(k)})$
+- **Banach Fixed-Point Theorem** guarantees:
+  - Existence and uniqueness of a fixed point
+  - Convergence if $f$ is a contraction mapping
+
+::: {layout-ncol=2}
+
+- For some $L < 1$: $|f(x) - f(y)| \leq L|x - y|$
+- Error decreases by factor $L$ each iteration
+- After $n$ iterations: $|V_n - V^*| \leq \frac{L^n}{1-L}|V_0 - V^*|$
+
+![](images/fixedpoint/stefan_fixed_point_summary.png){width=90%}
+:::
+
+---
+
+## Conservation Properties
+
+- **Volume Conservation:** Our method directly enforces the Stefan condition at each iteration
+- **Energy Conservation:**
+  - Interface moves to satisfy heat flux balance: $\rho\,L\,(V_i^{n+1} - V_i^n) = \mathcal{F}_\Gamma$
+  - Even nearly-vanishing dead cells are computed to preserve global energy
+
+::: {layout-ncol=2}
+- No artificial energy creation/loss
+- Maintains sharp interface (no smearing)
+- Applicable to non-trivial phase change problems
+
+![Temperature profile with conservation](images/temp_stef_1d_2ph.png){width=90%}
+:::
+
+---
+
+## Test Case: 2D Stefan Problem
+
+- Fusion of a solid slab
+- Initial temperature $T_0 = 0$ (cooled melting)
+- Dirichlet boundary condition $T = 1$
+
+::: {layout-ncol="2"}
+![Interface convergence](images/stefan_2d_Inter_Conv.png){width=100%}
+
+![Temperature profile](images/stefan_2D_2ph_temp3.gif){width=100% fig-align="center"}
+:::
+
+---
+
+## Convergence Properties
+
+- Linear convergence observed ($O(k^{1.1})$)
+- Efficient with good initial guess (extrapolation or velocity-based)
+
+::: {layout-ncol="2"}
+![Residual decay](images/stefan_1D_residual.png){width=80%}
+
+![Iterations per timestep](images/residual_withguess.png){width=80%}
+:::
+
+# Conclusion & Perspectives
+
+## Key Achievements
+
+- **Cut-cell method for two-phase problems**
+  - Conservation guaranteed
+  - Second-order accurate
+  - No interpolation needed for boundary conditions
+
+- **Space-time framework for moving interfaces**
+  - Properly handles discrete events (fresh/dead cells)
+  - Maintains conservation
+
+- **Implicit interface tracking**
+  - Fixed-point iterative procedure
+  - Enforces physics-based interface movement
+
+---
+
+## Future Work
+
+- Front-tracking approach for interface representation
+- Extension to Navier-Stokes equations for two-phase flows
+- Preconditioning strategies and parallelization
+
+::: {layout-ncol=2}
+![](images/star_evolution.gif){width=80%}
+
+![](images/Domain-decomposition.png){width=80%}
+:::
+
+# Thank You!
+
+Questions?
+
+# Appendix {.appendix visibility="uncounted"}
+
+## Front-Tracking Enhancement
+
+- Interface represented by a set of markers with positions $\vec{X}_I$
+- Interface update formulated as optimization problem:
+
+$$
+\mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}
+$$
+
+Where $F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\mathbf{q}^\gamma\cdot\mathbf{n}⟧$ is the Stefan condition residual
+
+::: {layout-ncol=2}
+![](images/star_evolution.gif){width=80%}
+
+**Solution via non-linear least squares:**
+- Jacobian matrix: $J_{i,J} = \rho L \frac{\partial V_i^{n+1}}{\partial X_J}$
+- Levenberg-Marquardt update:
+  $\mathbf{X}^{n+1} = \mathbf{X}^{n} - (J^T J + \lambda D)^{-1} J^T \mathbf{F}$
+:::
+
+## References
+
+::: {#refs}
+:::
