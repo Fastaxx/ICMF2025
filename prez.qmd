@@ -279,20 +279,6 @@ $$
 
 ---
 
-## Fixed-Point Theoretical Framework
-
-- **Fixed-Point Formulation**: 
-  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})$$
-
-- **Banach Fixed-Point Theorem**: Guarantees convergence if $f$ is contractive. Existence (and uniqueness) of fixed point $\mathbf{x}_\Gamma^{n+1}$.
-
-- **Contraction Property**:
-  $$\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L < 1$$
-
-![](images/stefan_fixed_point_analysis_step2.png){height=700 fig-align="center"}
-
----
-
 ## Test Case: 2D Two-Phase Stefan Problem
 
 ::: {layout-ncol=2}
@@ -327,7 +313,6 @@ $$
 
 - Small waves on solid-liquid interface
 - Some modes grow, some decay
-- Growth rate matches theoretical prediction
 
 ![Growth amplitude](images/growing_interface_ampl.png){width=90%}
 :::
@@ -335,10 +320,10 @@ $$
 ::: {.column}
 **Pattern Formation**
 
-![Growing dendrite](images/mullins_sekerka_interface){width=100%}
-
 - Initial small perturbation
 - Develops into dendrite pattern
+
+![Growing dendrite](images/mullins_sekerka_interface1.png){width=90%}
 :::
 :::
 
@@ -379,6 +364,19 @@ Thank you for your attention!
   - Efficient solvers for large systems
   - Parallel implementation
 
+## Fixed-Point Theoretical Framework
+
+- **Fixed-Point Formulation**: 
+  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})$$
+
+- **Banach Fixed-Point Theorem**: Guarantees convergence if $f$ is contractive. Existence (and uniqueness) of fixed point $\mathbf{x}_\Gamma^{n+1}$.
+
+- **Contraction Property**:
+  $$\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L < 1$$
+
+![](images/stefan_fixed_point_analysis_step2.png){height=700 fig-align="center"}
+
+---
 
 
 ## Front-Tracking Enhancement
@@ -404,4 +402,14 @@ Where $F_i = \rho L (V_i^{n+1} - V_i^{n}) - âŸ¦\mathbf{q}^\gamma\cdot\mathbf{n}â
 ## References
 
 ::: {#refs}
+@2025TwoPhase
+@Chen1997
+@Mullins1964
+@Polyanin2016
+@Popinet2009
+@Remmerswaal2022
+@Stefan1891
+@Weymouth2010
 :::
+
+
