@@ -32,6 +32,7 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
+      margin-bottom: 0em;
     }
     .hanging-indent div.csl-entry {
       margin-left:2em;
@@ -455,19 +456,6 @@ Figure&nbsp;2: Sharp interface with no spurious oscillations
 </div>
 </div>
 </section>
-<section id="fixed-point-theoretical-framework" class="slide level2">
-<h2>Fixed-Point Theoretical Framework</h2>
-<ul>
-<li><p><strong>Fixed-Point Formulation</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
-<li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{x}_\Gamma^{n+1}\)</span>.</p></li>
-<li><p><strong>Contraction Property</strong>: <span class="math display">\[\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\]</span></p></li>
-</ul>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="images/stefan_fixed_point_analysis_step2.png" class="quarto-figure quarto-figure-center" height="700"></p>
-</figure>
-</div>
-</section>
 <section id="test-case-2d-two-phase-stefan-problem" class="slide level2">
 <h2>Test Case: 2D Two-Phase Stefan Problem</h2>
 <div class="quarto-layout-panel" data-layout-ncol="2">
@@ -525,7 +513,6 @@ Figure&nbsp;2: Sharp interface with no spurious oscillations
 <ul>
 <li>Small waves on solid-liquid interface</li>
 <li>Some modes grow, some decay</li>
-<li>Growth rate matches theoretical prediction</li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -535,16 +522,16 @@ Figure&nbsp;2: Sharp interface with no spurious oscillations
 </div>
 </div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Pattern Formation</strong></p>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="images/mullins_sekerka_interface.png" style="width:100.0%"></p>
-<figcaption>Growing dendrite</figcaption>
-</figure>
-</div>
 <ul>
 <li>Initial small perturbation</li>
 <li>Develops into dendrite pattern</li>
 </ul>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mullins_sekerka_interface1.png" style="width:90.0%"></p>
+<figcaption>Growing dendrite</figcaption>
+</figure>
+</div>
 </div></div>
 </div>
 </section></section>
@@ -606,6 +593,19 @@ Figure&nbsp;2: Sharp interface with no spurious oscillations
 </ul></li>
 </ul>
 </section>
+<section id="fixed-point-theoretical-framework" class="slide level2" data-visibility="uncounted">
+<h2>Fixed-Point Theoretical Framework</h2>
+<ul>
+<li><p><strong>Fixed-Point Formulation</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
+<li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{x}_\Gamma^{n+1}\)</span>.</p></li>
+<li><p><strong>Contraction Property</strong>: <span class="math display">\[\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\]</span></p></li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/stefan_fixed_point_analysis_step2.png" class="quarto-figure quarto-figure-center" height="700"></p>
+</figure>
+</div>
+</section>
 <section id="front-tracking-enhancement" class="slide level2" data-visibility="uncounted">
 <h2>Front-Tracking Enhancement</h2>
 <ul>
@@ -629,8 +629,32 @@ Figure&nbsp;2: Sharp interface with no spurious oscillations
 </section>
 <section id="references" class="slide level2 smaller scrollable" data-visibility="uncounted">
 <h2>References</h2>
-<div id="refs" role="list">
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<p><span class="citation" data-cites="2025TwoPhase">TwoPhase (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span> <span class="citation" data-cites="Chen1997">Chen et al. (<a href="#/references" role="doc-biblioref" onclick="">1997</a>)</span> <span class="citation" data-cites="Mullins1964">Mullins (<a href="#/references" role="doc-biblioref" onclick="">1964</a>)</span> <span class="citation" data-cites="Polyanin2016">Polyanin and Nazaikinskii (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> <span class="citation" data-cites="Popinet2009">Popinet (<a href="#/references" role="doc-biblioref" onclick="">2009</a>)</span> <span class="citation" data-cites="Remmerswaal2022">Remmerswaal and Veldman (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span> <span class="citation" data-cites="Stefan1891">Stefan (<a href="#/references" role="doc-biblioref" onclick="">1891</a>)</span> <span class="citation" data-cites="Weymouth2010">Weymouth and Yue (<a href="#/references" role="doc-biblioref" onclick="">2010</a>)</span></p>
+<div id="ref-Chen1997" class="csl-entry" role="listitem">
+Chen, S., Barry Merriman, S. Osher, and Peter Smereka. 1997. <span>“A Simple Level Set Method for Solving Stefan Problems.”</span> <em>Journal of Computational Physics</em> 135: 8–29. <a href="https://api.semanticscholar.org/CorpusID:15053906">https://api.semanticscholar.org/CorpusID:15053906</a>.
+</div>
+<div id="ref-Mullins1964" class="csl-entry" role="listitem">
+Mullins, W. W. 1964. <span>“Stability of a Planar Interface During Solidification of a Dilute Binary Alloy.”</span> In. <a href="https://api.semanticscholar.org/CorpusID:100344661">https://api.semanticscholar.org/CorpusID:100344661</a>.
+</div>
+<div id="ref-Polyanin2016" class="csl-entry" role="listitem">
+Polyanin, Andrei, and Vladimir Nazaikinskii. 2016. <em>Handbook of Linear Partial Differential Equations for Engineers and Scientists, Second Edition</em>. <em>Handbook of Linear Partial Differential Equations for Engineers and Scientists, Second Edition</em>. <a href="https://doi.org/10.1201/b19056">https://doi.org/10.1201/b19056</a>.
+</div>
+<div id="ref-Popinet2009" class="csl-entry" role="listitem">
+Popinet, Stéphane. 2009. <span>“An Accurate Adaptive Solver for Surface-Tension-Driven Interfacial Flows.”</span> <em>Journal of Computational Physics</em> 228 (16): 5838–66. https://doi.org/<a href="https://doi.org/10.1016/j.jcp.2009.04.042">https://doi.org/10.1016/j.jcp.2009.04.042</a>.
+</div>
+<div id="ref-Remmerswaal2022" class="csl-entry" role="listitem">
+Remmerswaal, Ronald A., and Arthur E. P. Veldman. 2022. <span>“A Sharp, Structure Preserving Two-Velocity Model for Two-Phase Flow.”</span> <a href="https://arxiv.org/abs/2210.08916">https://arxiv.org/abs/2210.08916</a>.
+</div>
+<div id="ref-Stefan1891" class="csl-entry" role="listitem">
+Stefan, Josef. 1891. <span>“Ueber Die Theorie Der Eisbildung, Insbesondere <span class="nocase">ü</span>ber Die Eisbildung Im Polarmeere.”</span> <em>Annalen Der Physik</em> 278: 269–86. <a href="https://api.semanticscholar.org/CorpusID:120682366">https://api.semanticscholar.org/CorpusID:120682366</a>.
+</div>
+<div id="ref-2025TwoPhase" class="csl-entry" role="listitem">
+TwoPhase. 2025. <span>“Two Phase Heat Equation with Homothetic Temperature Jump BC.”</span>
+</div>
+<div id="ref-Weymouth2010" class="csl-entry" role="listitem">
+Weymouth, Gabriel, and Dick Yue. 2010. <span>“Conservative Volume-of-Fluid Method for Free-Surface Simulations on Cartesian-Grids.”</span> <em>J. Comput. Physics</em> 229 (April): 2853–65. <a href="https://doi.org/10.1016/j.jcp.2009.12.018">https://doi.org/10.1016/j.jcp.2009.12.018</a>.
+</div>
 </div>
 
 </section></section>
