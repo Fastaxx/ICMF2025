@@ -18,10 +18,10 @@ format:
         css: styles.css
         slide-number: true
         preview-links: auto
-        toc: true
+        toc: false
         toc-depth: 1
         footer: |
-            <p>© 2025 L. Libat, V. Le Chenadec, E. Chénier, C.Selçuk </p>
+            <p>© 2025 L. Libat, E. Chénier, C.Selçuk, V. Le Chenadec</p>
 ---
 
 # Introduction
@@ -42,28 +42,21 @@ format:
 - Interface position $s(t)$ depends on temperature gradients $\nabla T_i$
 $$
 \begin{aligned}
-&\text{For i=1,2, find } T_i(x,t)\ \text{and interface } s(t) \text{ such that:}\\
-&\quad \partial_t T_i - \nabla\cdot(k_i\,\nabla T_i) = 0, \quad x \in \Omega_i(t),\\
-&\quad T_i(s(t),t) = T_m, \quad 
-\rho\,L\,\frac{ds}{dt} \;=\; ⟦ k_i\,\nabla T_i \cdot \mathbf{n}⟧.
+&\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
+&\partial_t T_s - k_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
+&\partial_t T_l - k_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
+&T_s = T_l = T_m \quad \text{at interface}\\
+&\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n} - k_s\nabla T_s \cdot \mathbf{n} \quad \text{at interface}\\
 \end{aligned}
 $$
 
-![](images/ice_melting.gif){width=70% fig-align="center"}
+![](images/ice_melting.gif){width=100% fig-align="center"}
 
 ---
 
 ## Primary Challenges
 
-::: {.border .p-2}
-| **Challenges** | | **Our Approach** |
-|:---------------|:-:|:----------------|
-| Sharp Interface Modeling | → | Cut-Cell on Cartesian Grid |
-| Conservation with Moving Domains | → | Space-Time Framework |
-| Interface Jump Conditions | → | Two-Fluid Formulation |
-| Interface Update | → | Fixed-Point Iteration |
-| Numerical Stability | → | Implicit Interface Coupling |
-:::
+![](images/difficulties.png){width=100% fig-align="center"}
 
 # Cut Cell Method for static interfaces
 
@@ -73,7 +66,7 @@ $$
 ::: {.incremental}
 - Interface divides domain into regions
 - 3 types of cells:
-  - Fluid cells 
+  - Liquid cells 
   - Cut cells (intersected by interface)
   - Solid cells
 - 1 set of equations for each phase
@@ -88,40 +81,58 @@ $$
 
 ## Cut-Cell Discretization
 
+For each phase, we have the heat equation:
 $$
 \begin{aligned}
-\frac{\partial T}{\partial t} - \nabla \cdot (k \nabla T) &= S 
+\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= S_p \quad \text{in } \Omega_p, \quad p=\text{liquid, solid} \\
 \end{aligned}
 $$
 
 Integrating over control volume and integrating in time:
 
 $$
-\int_{\Omega_i} (T^{n+1} - T^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_i \setminus \Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \color{red}{\int_{\Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \int_{\Omega_i} \tilde{S} \, dV \right]
+\int_{\Omega_p} (T_p^{n+1} - T_p^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla \tilde{T}_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla \tilde{T_p} \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} \tilde{S_p} \, dV \right]
 $$
 
 ::: {layout-ncol=2}
 where 
 $$\tilde{T} = \theta T^{n+1} + (1-\theta)T^n$$
+- $\theta$ is a parameter between 0 and 1
 
-![](images/interface_cut_cell_formulation.png){width=100% fig-align="center"}
+![](images/two_phase_cell_formulation.png){width=100% fig-align="center"}
 :::
 
 ---
 
 ## Cut-Cell Discretization
 
-After discretization for cells cut by the interface:
-
+For each phase (solid, liquid), the discretization leads to:
 $$
-V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}_i) + F_i^{\Gamma} + S_i V_i \right]
+V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_f(\tilde{T}_p) + F_p^{\Gamma} + S_p V_p \right]
 $$
 
-Interface flux $F_i^{\Gamma}$ depends on boundary conditions:
+Where $F_p^{\Gamma}$ is the interface flux in phase $p$.
 
-- **Dirichlet**: $T=g(\mathbf{x})$ → $F_i^{\Gamma} = k A_{\Gamma} \nabla_{\Gamma}(\tilde{T}_i)$
-- **Neumann**: $k \nabla T \cdot \mathbf{n} = q_{\Gamma}$ → $F_i^{\Gamma} = q_{\Gamma} A_{\Gamma}$
-- **Robin**: $\alpha T + \beta k \nabla T \cdot \mathbf{n} = g$ → Linear combination of Dirichlet and Neumann
+Boundary conditions at the interface are defined as
+
+::: {layout-ncol=2}
+**Temperature Jump :**
+$$
+\begin{aligned}
+⟦\alpha T⟧ &= g \quad \text{on } \Gamma \\
+\end{aligned}
+$$
+$$\alpha_s T_s^\Gamma - \alpha_l T_l^\Gamma = g(\mathbf{x})$$
+
+**Heat Flux Jump :**
+$$
+\begin{aligned}
+⟦k \nabla T \cdot \mathbf{n}⟧ &= h(\mathbf{x}) \quad \text{on } \Gamma \\
+\end{aligned}
+$$
+$$F_s^\Gamma - F_l^\Gamma = A_\Gamma h(\mathbf{x})$$
+
+:::
 
 ---
 
@@ -129,18 +140,23 @@ Interface flux $F_i^{\Gamma}$ depends on boundary conditions:
 
 $$
 \begin{bmatrix}
-M_{11} & M_{12} & 0 & 0 \\
-0 & M_{22} & 0 & M_{24} \\
-0 & 0 & M_{33} & M_{34} \\
-M_{41} & M_{42} & M_{43} & M_{44}
+M_{\text{bulk}}^s & M_{\text{int}}^s & 0 & 0 \\
+\alpha_s I & 0 & -\alpha_l I & 0 \\
+0 & 0 & M_{\text{bulk}}^l & M_{\text{int}}^l \\
+F_{\text{bulk}}^s & F_{\text{int}}^s & F_{\text{bulk}}^l & F_{\text{int}}^l
 \end{bmatrix}
 \begin{bmatrix}
-T^{n+1}_{\text{bulk 1}} \\
-T^{n+1}_{\text{interface 1}} \\
-T^{n+1}_{\text{bulk 2}} \\
-T^{n+1}_{\text{interface 2}}
+T^{n+1}_{\text{s}} \\
+T^{n+1,\Gamma}_{\text{s}} \\
+T^{n+1}_{\text{l}} \\
+T^{n+1,\Gamma}_{\text{l}}
 \end{bmatrix} =
-RHS
+\begin{bmatrix}
+\text{RHS}_s \\
+g \\
+\text{RHS}_l \\
+A_\Gamma h
+\end{bmatrix}
 $$
 
 - Implicit time-stepping
@@ -148,17 +164,17 @@ $$
 - Enforce boundary conditions directly in the system
 - ⚠️ **No need for ghost cells or extrapolation**
 
---- 
+---
 
 ## Validation Case: 2D Two-Phase Heat Equation
 
-$\Omega_1$ is a disk with radius $R$. $\Omega_2$ is the complement of $\Omega_1$ in the unit square.
+$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
 
 $$
 \begin{aligned}
-\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &= 0 \quad \text{in } \Omega_i, \quad i=1,2 \\
-T_1 - \alpha_2 T_2 &= 0 \quad \text{on } \Gamma, \\
-k_1 \nabla T_1 \cdot \mathbf{n} - k_2 \nabla T_2 \cdot \mathbf{n} &= 0 \quad \text{on } \Gamma
+\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= 0 \quad \text{in } \Omega_p \\
+T_s - \alpha_l T_l &= 0 \quad \text{on } \Gamma, \\
+k_s \nabla T_s \cdot \mathbf{n} - k_l \nabla T_l \cdot \mathbf{n} &= 0 \quad \text{on } \Gamma, \\
 \end{aligned}
 $$
 
@@ -166,8 +182,8 @@ Analytical solution:
 $$
 \small
 \begin{aligned}
-T_1(r,t) &= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
-T_2(r,t) &= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+T_1(r,t) &= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_2(r,t) &= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
 \end{aligned}
 $$
 
@@ -176,36 +192,36 @@ $$
 ## Validation: 2D Two-Phase Heat Equation
 
 
-$\Omega_1$ is a disk with radius $R$ in a unit square domain $\Omega_2$
+$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
 
-::: {#fig-heat2 layout-ncol=2}
-![Convergence Results](images/two_phase_conv.png){width=100%}
-
-![Temperature Field](images/heat_2d_2ph_henry_end.png){width=100%}
+::: {#fig-heat2 layout-ncol=1}
+![Convergence Results](images/two_phase_conv.png){width=60%}
 
 Second-order convergence in $L^2$ norm for regular cells, superlinear for cut cells
 :::
+
+---
+
+## Validation: 2D Two-Phase Heat Equation
+
+$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
+
+::: {#fig-heat3 layout-ncol=1}
+![Convergence Results](images/heat_2d_2ph_henry_end.png){width=75%}
+
+Sharp interface with no spurious oscillations
+:::
+
+
 
 # Cut Cell Method for moving interfaces
 
 ## Space-Time Approach
 
 - Combine time with spatial domain (extrude cells across $\Delta t$)
-- Preserves conservation across time steps especially for discrete events
+- Preserves conservation across time steps especially for discrete events (fresh/dead cells)
 
 ![From 1D Space to 2D Space-Time](images/space_time.gif){width="80%" fig-align="center"}
-
----
-
-## Fresh/Dead Cell Problem
-
-- Cells may change status as interface moves:
-  - **Fresh cells:** Empty at $t^n$, wet at $t^{n+1}$
-  - **Dead cells:** Wet at $t^n$, empty at $t^{n+1}$
-
-![](images/fresh_dead_cells_visualization.png){width=80% fig-align="center"}
-
-- Our space-time approach preserves conservation even with changing domain
 
 ---
 
@@ -216,13 +232,12 @@ Second-order convergence in $L^2$ norm for regular cells, superlinear for cut ce
 **Traditional VOF Approach:**
 
 $$
-\frac{\partial \alpha}{\partial t} + \nabla\cdot(\alpha\,\mathbf{u}) = 0
+\frac{\partial c}{\partial t} + \nabla\cdot(c\,\mathbf{u}) = 0
 $$
 
 - **Challenges:**
   - Velocity extension near interface
-  - Numerical diffusion over time
-  - Operator splitting errors
+  - Numerical errors
 
 ![VOF Advection Schematic](images/vof_advection.png){width=90%}
 :::
@@ -232,7 +247,7 @@ $$
 
 
 $$
-\rho L \frac{\partial s}{\partial t} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0
+\rho L \frac{\partial s}{\partial t} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
 $$
 
 - **Advantages:**
@@ -247,41 +262,45 @@ $$
 
 ## Newton Iteration for Interface Tracking
 
-- **Interface Representation** : Parametrization with Height functions $y=H(x)$
+- **Interface Representation**: Height function $y=s(x)$ with position $\mathbf{x}_\Gamma$
 
-- **Stefan Condition:** $\rho\,L\,\dot{s} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0$
+- **Stefan Condition as Root-Finding Problem**: 
+  $$\rho\,L\,\dot{s} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0$$
 
-We formulate this as a newton iteration problem on the interface height function:
+- **Newton Iteration Method**:
+  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})$$
 
-$$H^{n+1,(k+1)}_i = H^{n+1,(k)}_i - F_i^{(k)}$$
+::: {layout-ncol=2}
+![](images/newton_update.svg){width=100%, fig-align="center"}
 
-Where:
-
-- $H_i^{n+1,(k+1)}$ is the new interface representation
-- $H_i^{n+1,(k)}$ is the previous interface representation
-- $F_i^{(k)}$ is the residual based on the Stefan condition
+- Iterate until convergence: $\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| < \epsilon$
+- Each iteration requires solving temperature field
+:::
 
 ---
 
 ## Fixed-Point Theoretical Framework
 
-- Our interface update: $H^{n+1,(k+1)} = f(H^{n+1,(k)})$
-- **Banach Fixed-Point Theorem** guarantees convergence for contracting mappings and existence of a (unique) fixed point
+- **Fixed-Point Formulation**: 
+  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})$$
 
-- Observed that : 
-  - Lipschitz constant $L < 1$
+- **Banach Fixed-Point Theorem**: Guarantees convergence if $f$ is contractive. Existence (and uniqueness) of fixed point $\mathbf{x}_\Gamma^{n+1}$.
 
+- **Contraction Property**:
+  $$\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L < 1$$
 
 ![](images/stefan_fixed_point_analysis_step2.png){height=700 fig-align="center"}
 
-
 ---
 
-## Test Case: 2D Stefan Problem
+## Test Case: 2D Two-Phase Stefan Problem
 
+::: {layout-ncol=2}
 - Fusion of a solid slab
-- Initial temperature $T_0 = 0$ (cooled melting)
-- Dirichlet boundary condition $T = 1$
+- Initial position off equilibrium
+
+![](images/stef_bc_test.svg){width=100% fig-align="center"}
+:::
 
 ::: {layout-ncol="2"}
 ![Interface convergence](images/stefan_2d_Inter_Conv.png){width=100%}
