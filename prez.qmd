@@ -191,19 +191,6 @@ $$
 
 ## Validation: 2D Two-Phase Heat Equation
 
-
-$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
-
-::: {#fig-heat2 layout-ncol=1}
-![Convergence Results](images/two_phase_conv.png){width=60%}
-
-Second-order convergence in $L^2$ norm for regular cells, superlinear for cut cells
-:::
-
----
-
-## Validation: 2D Two-Phase Heat Equation
-
 $\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
 
 ::: {#fig-heat3 layout-ncol=1}
@@ -212,7 +199,17 @@ $\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$
 Sharp interface with no spurious oscillations
 :::
 
+---
 
+## Validation: 2D Two-Phase Heat Equation
+
+$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
+
+::: {#fig-heat2 layout-ncol=1}
+![Convergence Results](images/two_phase_conv.png){width=60%}
+
+Second-order convergence in $L^2$ norm for regular cells, superlinear for cut cells
+:::
 
 # Cut Cell Method for moving interfaces
 
