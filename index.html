@@ -9,7 +9,7 @@
 <link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-bcbce66894bfa8e7e94e40e0186b9bb8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.29">
 
-  <meta name="dcterms.date" content="2025-04-28">
+  <meta name="dcterms.date" content="2025-04-29">
   <title>Numerical Modeling of Heat &amp; Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -160,19 +160,7 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
     </div>
 </div>
 
-  <p class="date">April 28, 2025</p>
-</section><section id="TOC">
-<nav role="doc-toc"> 
-<h2 id="toc-title">Table of contents</h2>
-<ul>
-<li><a href="#/introduction" id="/toc-introduction">Introduction</a></li>
-<li><a href="#/cut-cell-method-for-static-interfaces" id="/toc-cut-cell-method-for-static-interfaces">Cut Cell Method for static interfaces</a></li>
-<li><a href="#/cut-cell-method-for-moving-interfaces" id="/toc-cut-cell-method-for-moving-interfaces">Cut Cell Method for moving interfaces</a></li>
-<li><a href="#/conclusion-perspectives" id="/toc-conclusion-perspectives">Conclusion &amp; Perspectives</a></li>
-<li><a href="#/questions" id="/toc-questions">Questions ?</a></li>
-<li><a href="#/appendix" id="/toc-appendix">Appendix</a></li>
-</ul>
-</nav>
+  <p class="date">April 29, 2025</p>
 </section>
 <section>
 <section id="introduction" class="title-slide slide level1 center">
@@ -194,56 +182,20 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <li>Classical phase change problems where a moving boundary separates phases</li>
 <li>Interface position <span class="math inline">\(s(t)\)</span> depends on temperature gradients <span class="math inline">\(\nabla T_i\)</span> <span class="math display">\[
 \begin{aligned}
-&amp;\text{For i=1,2, find } T_i(x,t)\ \text{and interface } s(t) \text{ such that:}\\
-&amp;\quad \partial_t T_i - \nabla\cdot(k_i\,\nabla T_i) = 0, \quad x \in \Omega_i(t),\\
-&amp;\quad T_i(s(t),t) = T_m, \quad
-\rho\,L\,\frac{ds}{dt} \;=\; ⟦ k_i\,\nabla T_i \cdot \mathbf{n}⟧.
+&amp;\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
+&amp;\partial_t T_s - k_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
+&amp;\partial_t T_l - k_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
+&amp;T_s = T_l = T_m \quad \text{at interface}\\
+&amp;\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n} - k_s\nabla T_s \cdot \mathbf{n} \quad \text{at interface}\\
 \end{aligned}
 \]</span></li>
 </ul>
 
-<img data-src="images/ice_melting.gif" class="quarto-figure quarto-figure-center r-stretch" style="width:70.0%"></section>
+<img data-src="images/ice_melting.gif" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
 <section id="primary-challenges" class="slide level2">
 <h2>Primary Challenges</h2>
-<div class="border p-2">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th style="text-align: left;"><strong>Challenges</strong></th>
-<th style="text-align: center;"></th>
-<th style="text-align: left;"><strong>Our Approach</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Sharp Interface Modeling</td>
-<td style="text-align: center;">→</td>
-<td style="text-align: left;">Cut-Cell on Cartesian Grid</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Conservation with Moving Domains</td>
-<td style="text-align: center;">→</td>
-<td style="text-align: left;">Space-Time Framework</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Interface Jump Conditions</td>
-<td style="text-align: center;">→</td>
-<td style="text-align: left;">Two-Fluid Formulation</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Interface Update</td>
-<td style="text-align: center;">→</td>
-<td style="text-align: left;">Fixed-Point Iteration</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Numerical Stability</td>
-<td style="text-align: center;">→</td>
-<td style="text-align: left;">Implicit Interface Coupling</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section></section>
+
+<img data-src="images/difficulties.png" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section></section>
 <section>
 <section id="cut-cell-method-for-static-interfaces" class="title-slide slide level1 center">
 <h1>Cut Cell Method for static interfaces</h1>
@@ -258,7 +210,7 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <li class="fragment">Interface divides domain into regions</li>
 <li class="fragment">3 types of cells:
 <ul>
-<li class="fragment">Fluid cells</li>
+<li class="fragment">Liquid cells</li>
 <li class="fragment">Cut cells (intersected by interface)</li>
 <li class="fragment">Solid cells</li>
 </ul></li>
@@ -279,24 +231,24 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 </section>
 <section id="cut-cell-discretization" class="slide level2">
 <h2>Cut-Cell Discretization</h2>
-<p><span class="math display">\[
+<p>For each phase, we have the heat equation: <span class="math display">\[
 \begin{aligned}
-\frac{\partial T}{\partial t} - \nabla \cdot (k \nabla T) &amp;= S
+\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &amp;= S_p \quad \text{in } \Omega_p, \quad p=\text{liquid, solid} \\
 \end{aligned}
 \]</span></p>
 <p>Integrating over control volume and integrating in time:</p>
 <p><span class="math display">\[
-\int_{\Omega_i} (T^{n+1} - T^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_i \setminus \Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \color{red}{\int_{\Gamma_i} k \nabla \tilde{T} \cdot \mathbf{n} \, dS} + \int_{\Omega_i} \tilde{S} \, dV \right]
+\int_{\Omega_p} (T_p^{n+1} - T_p^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla \tilde{T}_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla \tilde{T_p} \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} \tilde{S_p} \, dV \right]
 \]</span></p>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p>where <span class="math display">\[\tilde{T} = \theta T^{n+1} + (1-\theta)T^n\]</span></p>
+<p>where <span class="math display">\[\tilde{T} = \theta T^{n+1} + (1-\theta)T^n\]</span> - <span class="math inline">\(\theta\)</span> is a parameter between 0 and 1</p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/interface_cut_cell_formulation.png" class="quarto-figure quarto-figure-center"></p>
+<p><img data-src="images/two_phase_cell_formulation.png" class="quarto-figure quarto-figure-center"></p>
 </figure>
 </div>
 </div>
@@ -305,33 +257,51 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 </section>
 <section id="cut-cell-discretization-1" class="slide level2">
 <h2>Cut-Cell Discretization</h2>
-<p>After discretization for cells cut by the interface:</p>
-<p><span class="math display">\[
-V_i(T_i^{n+1} - T_i^n) = \Delta t \left[ \sum_{f \in \text{reg}} k A_f \nabla_f(\tilde{T}_i) + F_i^{\Gamma} + S_i V_i \right]
+<p>For each phase (solid, liquid), the discretization leads to: <span class="math display">\[
+V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_f(\tilde{T}_p) + F_p^{\Gamma} + S_p V_p \right]
 \]</span></p>
-<p>Interface flux <span class="math inline">\(F_i^{\Gamma}\)</span> depends on boundary conditions:</p>
-<ul>
-<li><strong>Dirichlet</strong>: <span class="math inline">\(T=g(\mathbf{x})\)</span> → <span class="math inline">\(F_i^{\Gamma} = k A_{\Gamma} \nabla_{\Gamma}(\tilde{T}_i)\)</span></li>
-<li><strong>Neumann</strong>: <span class="math inline">\(k \nabla T \cdot \mathbf{n} = q_{\Gamma}\)</span> → <span class="math inline">\(F_i^{\Gamma} = q_{\Gamma} A_{\Gamma}\)</span></li>
-<li><strong>Robin</strong>: <span class="math inline">\(\alpha T + \beta k \nabla T \cdot \mathbf{n} = g\)</span> → Linear combination of Dirichlet and Neumann</li>
-</ul>
+<p>Where <span class="math inline">\(F_p^{\Gamma}\)</span> is the interface flux in phase <span class="math inline">\(p\)</span>.</p>
+<p>Boundary conditions at the interface are defined as</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Temperature Jump :</strong> <span class="math display">\[
+\begin{aligned}
+⟦\alpha T⟧ &amp;= g \quad \text{on } \Gamma \\
+\end{aligned}
+\]</span> <span class="math display">\[\alpha_s T_s^\Gamma - \alpha_l T_l^\Gamma = g(\mathbf{x})\]</span></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Heat Flux Jump :</strong> <span class="math display">\[
+\begin{aligned}
+⟦k \nabla T \cdot \mathbf{n}⟧ &amp;= h(\mathbf{x}) \quad \text{on } \Gamma \\
+\end{aligned}
+\]</span> <span class="math display">\[F_s^\Gamma - F_l^\Gamma = A_\Gamma h(\mathbf{x})\]</span></p>
+</div>
+</div>
+</div>
 </section>
 <section id="discretized-system" class="slide level2">
 <h2>Discretized System</h2>
 <p><span class="math display">\[
 \begin{bmatrix}
-M_{11} &amp; M_{12} &amp; 0 &amp; 0 \\
-0 &amp; M_{22} &amp; 0 &amp; M_{24} \\
-0 &amp; 0 &amp; M_{33} &amp; M_{34} \\
-M_{41} &amp; M_{42} &amp; M_{43} &amp; M_{44}
+M_{\text{bulk}}^s &amp; M_{\text{int}}^s &amp; 0 &amp; 0 \\
+\alpha_s I &amp; 0 &amp; -\alpha_l I &amp; 0 \\
+0 &amp; 0 &amp; M_{\text{bulk}}^l &amp; M_{\text{int}}^l \\
+F_{\text{bulk}}^s &amp; F_{\text{int}}^s &amp; F_{\text{bulk}}^l &amp; F_{\text{int}}^l
 \end{bmatrix}
 \begin{bmatrix}
-T^{n+1}_{\text{bulk 1}} \\
-T^{n+1}_{\text{interface 1}} \\
-T^{n+1}_{\text{bulk 2}} \\
-T^{n+1}_{\text{interface 2}}
+T^{n+1}_{\text{s}} \\
+T^{n+1,\Gamma}_{\text{s}} \\
+T^{n+1}_{\text{l}} \\
+T^{n+1,\Gamma}_{\text{l}}
 \end{bmatrix} =
-RHS
+\begin{bmatrix}
+\text{RHS}_s \\
+g \\
+\text{RHS}_l \\
+A_\Gamma h
+\end{bmatrix}
 \]</span></p>
 <ul>
 <li>Implicit time-stepping</li>
@@ -342,42 +312,34 @@ RHS
 </section>
 <section id="validation-case-2d-two-phase-heat-equation" class="slide level2">
 <h2>Validation Case: 2D Two-Phase Heat Equation</h2>
-<p><span class="math inline">\(\Omega_1\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_2\)</span> is the complement of <span class="math inline">\(\Omega_1\)</span> in the unit square.</p>
+<p><span class="math inline">\(\Omega_s\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_l\)</span> is the complement of <span class="math inline">\(\Omega_s\)</span> in the unit square.</p>
 <p><span class="math display">\[
 \begin{aligned}
-\frac{\partial T_i}{\partial t} - \nabla \cdot (k_i \nabla T_i) &amp;= 0 \quad \text{in } \Omega_i, \quad i=1,2 \\
-T_1 - \alpha_2 T_2 &amp;= 0 \quad \text{on } \Gamma, \\
-k_1 \nabla T_1 \cdot \mathbf{n} - k_2 \nabla T_2 \cdot \mathbf{n} &amp;= 0 \quad \text{on } \Gamma
+\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &amp;= 0 \quad \text{in } \Omega_p \\
+T_s - \alpha_l T_l &amp;= 0 \quad \text{on } \Gamma, \\
+k_s \nabla T_s \cdot \mathbf{n} - k_l \nabla T_l \cdot \mathbf{n} &amp;= 0 \quad \text{on } \Gamma, \\
 \end{aligned}
 \]</span></p>
 <p>Analytical solution: <span class="math display">\[
 \small
 \begin{aligned}
-T_1(r,t) &amp;= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
-T_2(r,t) &amp;= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{-k_1 u^2 t} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+T_1(r,t) &amp;= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_2(r,t) &amp;= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
 \end{aligned}
 \]</span></p>
 </section>
 <section id="validation-2d-two-phase-heat-equation" class="slide level2">
 <h2>Validation: 2D Two-Phase Heat Equation</h2>
-<p><span class="math inline">\(\Omega_1\)</span> is a disk with radius <span class="math inline">\(R\)</span> in a unit square domain <span class="math inline">\(\Omega_2\)</span></p>
+<p><span class="math inline">\(\Omega_s\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_l\)</span> is the complement of <span class="math inline">\(\Omega_s\)</span> in the unit square.</p>
 <div id="fig-heat2" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-heat2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/two_phase_conv.png" style="width:100.0%"></p>
+<p><img data-src="images/two_phase_conv.png" style="width:60.0%"></p>
 <figcaption>Convergence Results</figcaption>
-</figure>
-</div>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="images/heat_2d_2ph_henry_end.png" style="width:100.0%"></p>
-<figcaption>Temperature Field</figcaption>
 </figure>
 </div>
 </div>
@@ -385,6 +347,29 @@ T_2(r,t) &amp;= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \e
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-heat2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</span> norm for regular cells, superlinear for cut cells
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="validation-2d-two-phase-heat-equation-1" class="slide level2">
+<h2>Validation: 2D Two-Phase Heat Equation</h2>
+<p><span class="math inline">\(\Omega_s\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_l\)</span> is the complement of <span class="math inline">\(\Omega_s\)</span> in the unit square.</p>
+<div id="fig-heat3" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-heat3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/heat_2d_2ph_henry_end.png" style="width:75.0%"></p>
+<figcaption>Convergence Results</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-heat3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Sharp interface with no spurious oscillations
 </figcaption>
 </figure>
 </div>
@@ -398,24 +383,10 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <h2>Space-Time Approach</h2>
 <ul>
 <li>Combine time with spatial domain (extrude cells across <span class="math inline">\(\Delta t\)</span>)</li>
-<li>Preserves conservation across time steps especially for discrete events</li>
+<li>Preserves conservation across time steps especially for discrete events (fresh/dead cells)</li>
 </ul>
 
 <img data-src="images/space_time.gif" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">From 1D Space to 2D Space-Time</p></section>
-<section id="freshdead-cell-problem" class="slide level2">
-<h2>Fresh/Dead Cell Problem</h2>
-<ul>
-<li>Cells may change status as interface moves:
-<ul>
-<li><strong>Fresh cells:</strong> Empty at <span class="math inline">\(t^n\)</span>, wet at <span class="math inline">\(t^{n+1}\)</span></li>
-<li><strong>Dead cells:</strong> Wet at <span class="math inline">\(t^n\)</span>, empty at <span class="math inline">\(t^{n+1}\)</span></li>
-</ul></li>
-</ul>
-
-<img data-src="images/fresh_dead_cells_visualization.png" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"><ul>
-<li>Our space-time approach preserves conservation even with changing domain</li>
-</ul>
-</section>
 <section id="vof-advection-vs.-iterative-method" class="slide level2">
 <h2>VOF Advection vs.&nbsp;Iterative Method</h2>
 <div class="quarto-layout-panel" data-layout-ncol="2">
@@ -423,14 +394,13 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Traditional VOF Approach:</strong></p>
 <p><span class="math display">\[
-\frac{\partial \alpha}{\partial t} + \nabla\cdot(\alpha\,\mathbf{u}) = 0
+\frac{\partial c}{\partial t} + \nabla\cdot(c\,\mathbf{u}) = 0
 \]</span></p>
 <ul>
 <li><strong>Challenges:</strong>
 <ul>
 <li>Velocity extension near interface</li>
-<li>Numerical diffusion over time</li>
-<li>Operator splitting errors</li>
+<li>Numerical errors</li>
 </ul></li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
@@ -442,7 +412,7 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Our Iterative Method:</strong></p>
 <p><span class="math display">\[
-\rho L \frac{\partial s}{\partial t} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0
+\rho L \frac{\partial s}{\partial t} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
 \]</span></p>
 <ul>
 <li><strong>Advantages:</strong>
@@ -463,27 +433,34 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <section id="newton-iteration-for-interface-tracking" class="slide level2">
 <h2>Newton Iteration for Interface Tracking</h2>
 <ul>
-<li><p><strong>Interface Representation</strong> : Parametrization with Height functions <span class="math inline">\(y=H(x)\)</span></p></li>
-<li><p><strong>Stefan Condition:</strong> <span class="math inline">\(\rho\,L\,\dot{s} = ⟦\mathbf{q}\cdot\mathbf{n}⟧ \leftrightarrow F(s,T) = 0\)</span></p></li>
+<li><p><strong>Interface Representation</strong>: Height function <span class="math inline">\(y=s(x)\)</span> with position <span class="math inline">\(\mathbf{x}_\Gamma\)</span></p></li>
+<li><p><strong>Stefan Condition as Root-Finding Problem</strong>: <span class="math display">\[\rho\,L\,\dot{s} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0\]</span></p></li>
+<li><p><strong>Newton Iteration Method</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
 </ul>
-<p>We formulate this as a newton iteration problem on the interface height function:</p>
-<p><span class="math display">\[H^{n+1,(k+1)}_i = H^{n+1,(k)}_i - F_i^{(k)}\]</span></p>
-<p>Where:</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/newton_update.svg" class="quarto-figure quarto-figure-center"></p>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
-<li><span class="math inline">\(H_i^{n+1,(k+1)}\)</span> is the new interface representation</li>
-<li><span class="math inline">\(H_i^{n+1,(k)}\)</span> is the previous interface representation</li>
-<li><span class="math inline">\(F_i^{(k)}\)</span> is the residual based on the Stefan condition</li>
+<li>Iterate until convergence: <span class="math inline">\(\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| &lt; \epsilon\)</span></li>
+<li>Each iteration requires solving temperature field</li>
 </ul>
+</div>
+</div>
+</div>
 </section>
 <section id="fixed-point-theoretical-framework" class="slide level2">
 <h2>Fixed-Point Theoretical Framework</h2>
 <ul>
-<li><p>Our interface update: <span class="math inline">\(H^{n+1,(k+1)} = f(H^{n+1,(k)})\)</span></p></li>
-<li><p><strong>Banach Fixed-Point Theorem</strong> guarantees convergence for contracting mappings and existence of a (unique) fixed point</p></li>
-<li><p>Observed that :</p>
-<ul>
-<li>Lipschitz constant <span class="math inline">\(L &lt; 1\)</span></li>
-</ul></li>
+<li><p><strong>Fixed-Point Formulation</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
+<li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{x}_\Gamma^{n+1}\)</span>.</p></li>
+<li><p><strong>Contraction Property</strong>: <span class="math display">\[\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\]</span></p></li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -491,13 +468,25 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </figure>
 </div>
 </section>
-<section id="test-case-2d-stefan-problem" class="slide level2">
-<h2>Test Case: 2D Stefan Problem</h2>
+<section id="test-case-2d-two-phase-stefan-problem" class="slide level2">
+<h2>Test Case: 2D Two-Phase Stefan Problem</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
 <li>Fusion of a solid slab</li>
-<li>Initial temperature <span class="math inline">\(T_0 = 0\)</span> (cooled melting)</li>
-<li>Dirichlet boundary condition <span class="math inline">\(T = 1\)</span></li>
+<li>Initial position off equilibrium</li>
 </ul>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/stef_bc_test.svg" class="quarto-figure quarto-figure-center"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
@@ -650,7 +639,7 @@ Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <p><img src="images/msmelog.png" class="slide-logo"></p>
 <div class="footer footer-default">
 <p>
-© 2025 L. Libat, V. Le Chenadec, E. Chénier, C.Selçuk
+© 2025 L. Libat, E. Chénier, C.Selçuk, V. Le Chenadec
 </p>
 </div>
 </div></div>
