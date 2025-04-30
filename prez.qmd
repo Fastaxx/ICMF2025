@@ -60,22 +60,35 @@ $$
 
 # Cut Cell Method for static interfaces
 
-## Two-Phase Discretization
+## Two-Fluid Formulation Philosophy
 
 ::: {layout-ncol=2}
-::: {.incremental}
-- Interface divides domain into regions
-- 3 types of cells:
-  - Liquid cells 
-  - Cut cells (intersected by interface)
-  - Solid cells
-- 1 set of equations for each phase
-- 1 set of equations for the interface
-- Unknowns: Bulk temperature and interface temperature
+![Cartesian grid with interface $\Gamma$ separating solid/liquid regions](images/cut_cell_with_conditions.svg){width=100% fig-align="center"}
+
+::: {.column}
+**Two-Fluid Approach:**
+$$
+\begin{cases}
+\text{Solid phase: } \frac{\partial T_s}{\partial t} = k_s \nabla^2 T_s \\
+\text{Liquid phase: } \frac{\partial T_l}{\partial t} = k_l \nabla^2 T_l
+\end{cases}
+$$
+
+**Four Unknowns:**
+
+- Bulk temperatures: $T_s$, $T_l$
+- Interface temperatures: $T_s^\Gamma$, $T_l^\Gamma$
+
+**Interface Conditions:**
+$$
+\begin{aligned}
+⟦T⟧ &= g(\mathbf{x}) \quad \text{on } \Gamma \\
+⟦k \nabla T \cdot \mathbf{n}⟧ &= h(\mathbf{x}) \quad \text{on } \Gamma
+\end{aligned}
+$$
+:::
 :::
 
-![](images/cut_cell_with_conditions.svg){width=50% fig-align="center"}
-:::
 
 ---
 
@@ -90,6 +103,7 @@ $$
 
 Integrating over control volume and integrating in time:
 
+\LARGE
 $$
 \int_{\Omega_p} (T_p^{n+1} - T_p^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla \tilde{T}_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla \tilde{T_p} \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} \tilde{S_p} \, dV \right]
 $$
@@ -119,10 +133,10 @@ Boundary conditions at the interface are defined as
 **Temperature Jump :**
 $$
 \begin{aligned}
-⟦\alpha T⟧ &= g \quad \text{on } \Gamma \\
+⟦T⟧ &= g \quad \text{on } \Gamma \\
 \end{aligned}
 $$
-$$\alpha_s T_s^\Gamma - \alpha_l T_l^\Gamma = g(\mathbf{x})$$
+$$ T_s^\Gamma -  T_l^\Gamma = g(\mathbf{x})$$
 
 **Heat Flux Jump :**
 $$
@@ -244,7 +258,7 @@ $$
 
 
 $$
-\rho L \frac{\partial s}{\partial t} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
+\rho L \frac{\partial s}{\partial t} - ⟦\nabla T \cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
 $$
 
 - **Advantages:**
@@ -262,7 +276,7 @@ $$
 - **Interface Representation**: Height function $y=s(x)$ with position $\mathbf{x}_\Gamma$
 
 - **Stefan Condition as Root-Finding Problem**: 
-  $$\rho\,L\,\dot{s} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0$$
+  $$\rho\,L\,\dot{s} - ⟦\nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0$$
 
 - **Newton Iteration Method**:
   $$\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})$$
