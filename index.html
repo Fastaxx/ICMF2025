@@ -9,7 +9,7 @@
 <link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-bcbce66894bfa8e7e94e40e0186b9bb8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.29">
 
-  <meta name="dcterms.date" content="2025-04-29">
+  <meta name="dcterms.date" content="2025-04-30">
   <title>Numerical Modeling of Heat &amp; Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -161,7 +161,7 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
     </div>
 </div>
 
-  <p class="date">April 29, 2025</p>
+  <p class="date">April 30, 2025</p>
 </section>
 <section>
 <section id="introduction" class="title-slide slide level1 center">
@@ -202,32 +202,37 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <h1>Cut Cell Method for static interfaces</h1>
 
 </section>
-<section id="two-phase-discretization" class="slide level2">
-<h2>Two-Phase Discretization</h2>
+<section id="two-fluid-formulation-philosophy" class="slide level2">
+<h2>Two-Fluid Formulation Philosophy</h2>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<ul>
-<li class="fragment">Interface divides domain into regions</li>
-<li class="fragment">3 types of cells:
-<ul>
-<li class="fragment">Liquid cells</li>
-<li class="fragment">Cut cells (intersected by interface)</li>
-<li class="fragment">Solid cells</li>
-</ul></li>
-<li class="fragment">1 set of equations for each phase</li>
-<li class="fragment">1 set of equations for the interface</li>
-<li class="fragment">Unknowns: Bulk temperature and interface temperature</li>
-</ul>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/cut_cell_with_conditions.svg" class="quarto-figure quarto-figure-center"></p>
+<p><img data-src="images/cut_cell_with_conditions.svg" style="width:100.0%"></p>
+<figcaption>Cartesian grid with interface <span class="math inline">\(\Gamma\)</span> separating solid/liquid regions</figcaption>
 </figure>
 </div>
 </div>
-</div>
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Two-Fluid Approach:</strong> <span class="math display">\[
+\begin{cases}
+\text{Solid phase: } \frac{\partial T_s}{\partial t} = k_s \nabla^2 T_s \\
+\text{Liquid phase: } \frac{\partial T_l}{\partial t} = k_l \nabla^2 T_l
+\end{cases}
+\]</span></p>
+<p><strong>Four Unknowns:</strong></p>
+<ul>
+<li>Bulk temperatures: <span class="math inline">\(T_s\)</span>, <span class="math inline">\(T_l\)</span></li>
+<li>Interface temperatures: <span class="math inline">\(T_s^\Gamma\)</span>, <span class="math inline">\(T_l^\Gamma\)</span></li>
+</ul>
+<p><strong>Interface Conditions:</strong> <span class="math display">\[
+\begin{aligned}
+⟦T⟧ &amp;= g(\mathbf{x}) \quad \text{on } \Gamma \\
+⟦k \nabla T \cdot \mathbf{n}⟧ &amp;= h(\mathbf{x}) \quad \text{on } \Gamma
+\end{aligned}
+\]</span></p>
+</div></div>
 </div>
 </section>
 <section id="cut-cell-discretization" class="slide level2">
@@ -268,9 +273,9 @@ V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Temperature Jump :</strong> <span class="math display">\[
 \begin{aligned}
-⟦\alpha T⟧ &amp;= g \quad \text{on } \Gamma \\
+⟦T⟧ &amp;= g \quad \text{on } \Gamma \\
 \end{aligned}
-\]</span> <span class="math display">\[\alpha_s T_s^\Gamma - \alpha_l T_l^\Gamma = g(\mathbf{x})\]</span></p>
+\]</span> <span class="math display">\[ T_s^\Gamma -  T_l^\Gamma = g(\mathbf{x})\]</span></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Heat Flux Jump :</strong> <span class="math display">\[
@@ -324,8 +329,8 @@ k_s \nabla T_s \cdot \mathbf{n} - k_l \nabla T_l \cdot \mathbf{n} &amp;= 0 \quad
 <p>Analytical solution: <span class="math display">\[
 \small
 \begin{aligned}
-T_1(r,t) &amp;= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
-T_2(r,t) &amp;= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+T_s(r,t) &amp;= \frac{4 T_{s,0} k_s k_l^2 \alpha_l}{\pi^2 R} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_l(r,t) &amp;= \frac{2 T_{l,0} k_s \sqrt{k_l} \alpha_l}{\pi} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
 \end{aligned}
 \]</span></p>
 </section>
@@ -413,7 +418,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Our Iterative Method:</strong></p>
 <p><span class="math display">\[
-\rho L \frac{\partial s}{\partial t} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
+\rho L \frac{\partial s}{\partial t} - ⟦\nabla T \cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
 \]</span></p>
 <ul>
 <li><strong>Advantages:</strong>
@@ -435,7 +440,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <h2>Newton Iteration for Interface Tracking</h2>
 <ul>
 <li><p><strong>Interface Representation</strong>: Height function <span class="math inline">\(y=s(x)\)</span> with position <span class="math inline">\(\mathbf{x}_\Gamma\)</span></p></li>
-<li><p><strong>Stefan Condition as Root-Finding Problem</strong>: <span class="math display">\[\rho\,L\,\dot{s} - ⟦\mathbf{q}\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0\]</span></p></li>
+<li><p><strong>Stefan Condition as Root-Finding Problem</strong>: <span class="math display">\[\rho\,L\,\dot{s} - ⟦\nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0\]</span></p></li>
 <li><p><strong>Newton Iteration Method</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
 </ul>
 <div class="quarto-layout-panel" data-layout-ncol="2">
@@ -458,7 +463,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </section>
 <section id="test-case-2d-two-phase-stefan-problem" class="slide level2">
 <h2>Test Case: 2D Two-Phase Stefan Problem</h2>
-<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-panel" data-layout-nrow="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
@@ -474,8 +479,6 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div>
 </div>
 </div>
-</div>
-<div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
@@ -596,9 +599,9 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <section id="fixed-point-theoretical-framework" class="slide level2" data-visibility="uncounted">
 <h2>Fixed-Point Theoretical Framework</h2>
 <ul>
-<li><p><strong>Fixed-Point Formulation</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
+<li><p><strong>Fixed-Point Formulation</strong>: <span class="math inline">\(\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})\)</span></p></li>
 <li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{x}_\Gamma^{n+1}\)</span>.</p></li>
-<li><p><strong>Contraction Property</strong>: <span class="math display">\[\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\]</span></p></li>
+<li><p><strong>Contraction Property</strong>: <span class="math inline">\(\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\)</span></p></li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -610,27 +613,68 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <h2>Front-Tracking Enhancement</h2>
 <ul>
 <li>Interface represented by a set of markers with positions <span class="math inline">\(\vec{X}_I\)</span></li>
-<li>Interface update formulated as optimization problem:</li>
+<li>Interface update formulated as optimization problem: <span class="math inline">\(\mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}\)</span></li>
 </ul>
-<p><span class="math display">\[
-\mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}
-\]</span></p>
-<p>Where <span class="math inline">\(F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\mathbf{q}^\gamma\cdot\mathbf{n}⟧\)</span> is the Stefan condition residual</p>
+<p>Where <span class="math inline">\(F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\nabla T \cdot\mathbf{n}⟧\)</span> is the Stefan condition residual</p>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <p><img data-src="images/star_evolution.gif"></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Solution via non-linear least squares:</strong> - Jacobian matrix: <span class="math inline">\(J_{i,J} = \rho L \frac{\partial V_i^{n+1}}{\partial X_J}\)</span> - Levenberg-Marquardt update: <span class="math inline">\(\mathbf{X}^{n+1} = \mathbf{X}^{n} - (J^T J + \lambda D)^{-1} J^T \mathbf{F}\)</span></p>
+<ul>
+<li><strong>Solution via non-linear least squares:</strong></li>
+<li>Jacobian matrix: <span class="math inline">\(J_{i,J} = \rho L \frac{\partial V_i^{n+1}}{\partial X_J}\)</span></li>
+<li>Levenberg-Marquardt update: <span class="math inline">\(\mathbf{X}^{n+1} = \mathbf{X}^{n} - (J^T J + \lambda D)^{-1} J^T \mathbf{F}\)</span></li>
+</ul>
 </div>
 </div>
 </div>
 </section>
+<section id="appendix-gradient-calculation-at-the-interface" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Gradient Calculation at the interface</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/colella_grad.svg" style="width:85.0%"></p>
+<figcaption>Johansen and Colella method</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/interface_grad.svg" style="width:100.0%"></p>
+<figcaption>Our cut cell method</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p>2nd order gradient calculation at the interface using Johansen and Colella method</p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p>Gradient calculation at the interface using our cut-cell method (1st order)</p>
+</div>
+</div>
+</div>
+</section>
+<section id="appendix-prescribed-interface-motion" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Prescribed Interface Motion</h2>
+<ul>
+<li>No parasitic oscillations</li>
+<li>Minimium cell number to resolve the interface : <span class="math inline">\(6 \times 6\)</span> cells</li>
+</ul>
+
+<img data-src="images/shrinking.gif" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
 <section id="references" class="slide level2 smaller scrollable" data-visibility="uncounted">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<p><span class="citation" data-cites="2025TwoPhase">TwoPhase (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span> <span class="citation" data-cites="Chen1997">Chen et al. (<a href="#/references" role="doc-biblioref" onclick="">1997</a>)</span> <span class="citation" data-cites="Mullins1964">Mullins (<a href="#/references" role="doc-biblioref" onclick="">1964</a>)</span> <span class="citation" data-cites="Polyanin2016">Polyanin and Nazaikinskii (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> <span class="citation" data-cites="Popinet2009">Popinet (<a href="#/references" role="doc-biblioref" onclick="">2009</a>)</span> <span class="citation" data-cites="Remmerswaal2022">Remmerswaal and Veldman (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span> <span class="citation" data-cites="Stefan1891">Stefan (<a href="#/references" role="doc-biblioref" onclick="">1891</a>)</span> <span class="citation" data-cites="Weymouth2010">Weymouth and Yue (<a href="#/references" role="doc-biblioref" onclick="">2010</a>)</span></p>
 <div id="ref-Chen1997" class="csl-entry" role="listitem">
 Chen, S., Barry Merriman, S. Osher, and Peter Smereka. 1997. <span>“A Simple Level Set Method for Solving Stefan Problems.”</span> <em>Journal of Computational Physics</em> 135: 8–29. <a href="https://api.semanticscholar.org/CorpusID:15053906">https://api.semanticscholar.org/CorpusID:15053906</a>.
 </div>
@@ -656,6 +700,10 @@ TwoPhase. 2025. <span>“Two Phase Heat Equation with Homothetic Temperature Jum
 Weymouth, Gabriel, and Dick Yue. 2010. <span>“Conservative Volume-of-Fluid Method for Free-Surface Simulations on Cartesian-Grids.”</span> <em>J. Comput. Physics</em> 229 (April): 2853–65. <a href="https://doi.org/10.1016/j.jcp.2009.12.018">https://doi.org/10.1016/j.jcp.2009.12.018</a>.
 </div>
 </div>
+</section>
+<section id="references-1" class="slide level2" data-visibility="uncounted">
+<h2>References</h2>
+<p><span class="citation" data-cites="2025TwoPhase">TwoPhase (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span> <span class="citation" data-cites="Chen1997">Chen et al. (<a href="#/references" role="doc-biblioref" onclick="">1997</a>)</span> <span class="citation" data-cites="Mullins1964">Mullins (<a href="#/references" role="doc-biblioref" onclick="">1964</a>)</span> <span class="citation" data-cites="Polyanin2016">Polyanin and Nazaikinskii (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> <span class="citation" data-cites="Popinet2009">Popinet (<a href="#/references" role="doc-biblioref" onclick="">2009</a>)</span> <span class="citation" data-cites="Remmerswaal2022">Remmerswaal and Veldman (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span> <span class="citation" data-cites="Stefan1891">Stefan (<a href="#/references" role="doc-biblioref" onclick="">1891</a>)</span> <span class="citation" data-cites="Weymouth2010">Weymouth and Yue (<a href="#/references" role="doc-biblioref" onclick="">2010</a>)</span></p>
 
 </section></section>
     </div>
