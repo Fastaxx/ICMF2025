@@ -182,8 +182,8 @@ Analytical solution:
 $$
 \small
 \begin{aligned}
-T_1(r,t) &= \frac{4 T_{1,0} k_1 k_2^2 \alpha_2}{\pi^2 R} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
-T_2(r,t) &= \frac{2 T_{2,0} k_1 \sqrt{k_2} \alpha_2}{\pi} \int_0^{\infty} \exp{(-k_1 u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+T_s(r,t) &= \frac{4 T_{s,0} k_s k_l^2 \alpha_l}{\pi^2 R} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_l(r,t) &= \frac{2 T_{l,0} k_s \sqrt{k_l} \alpha_l}{\pi} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
 \end{aligned}
 $$
 
@@ -278,14 +278,12 @@ $$
 
 ## Test Case: 2D Two-Phase Stefan Problem
 
-::: {layout-ncol=2}
+::: {layout-nrow=2}
 - Fusion of a solid slab
 - Initial position off equilibrium
 
 ![](images/stef_bc_test.svg){width=100% fig-align="center"}
-:::
 
-::: {layout-ncol="2"}
 ![Interface convergence](images/stefan_2d_Inter_Conv.png){width=100%}
 
 ![Interface position](images/stefan_1D_interface.png){width=100%}
@@ -363,13 +361,11 @@ Thank you for your attention!
 
 ## Fixed-Point Theoretical Framework
 
-- **Fixed-Point Formulation**: 
-  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})$$
+- **Fixed-Point Formulation**: $\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})$
 
 - **Banach Fixed-Point Theorem**: Guarantees convergence if $f$ is contractive. Existence (and uniqueness) of fixed point $\mathbf{x}_\Gamma^{n+1}$.
 
-- **Contraction Property**:
-  $$\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L < 1$$
+- **Contraction Property**: $\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L < 1$
 
 ![](images/stefan_fixed_point_analysis_step2.png){height=700 fig-align="center"}
 
@@ -379,26 +375,50 @@ Thank you for your attention!
 ## Front-Tracking Enhancement
 
 - Interface represented by a set of markers with positions $\vec{X}_I$
-- Interface update formulated as optimization problem:
+- Interface update formulated as optimization problem: $\mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}$
 
-$$
-\mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}
-$$
-
-Where $F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\mathbf{q}^\gamma\cdot\mathbf{n}⟧$ is the Stefan condition residual
+Where $F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\nabla T \cdot\mathbf{n}⟧$ is the Stefan condition residual
 
 ::: {layout-ncol=2}
 ![](images/star_evolution.gif){width=80%}
 
-**Solution via non-linear least squares:**
+- **Solution via non-linear least squares:**
 - Jacobian matrix: $J_{i,J} = \rho L \frac{\partial V_i^{n+1}}{\partial X_J}$
 - Levenberg-Marquardt update:
   $\mathbf{X}^{n+1} = \mathbf{X}^{n} - (J^T J + \lambda D)^{-1} J^T \mathbf{F}$
 :::
 
+--- 
+
+## Appendix : Gradient Calculation at the interface
+
+::: {layout-ncol=2}
+![Johansen and Colella method](images/colella_grad.svg){width=85%}
+
+![Our cut cell method](images/interface_grad.svg){width=100%}
+:::
+
+::: {layout-ncol=2}
+2nd order gradient calculation at the interface using Johansen and Colella method
+
+Gradient calculation at the interface using our cut-cell method (1st order)
+:::
+
+## Appendix : Prescribed Interface Motion
+
+- No parasitic oscillations
+- Minimium cell number to resolve the interface : $6 \times 6$ cells
+
+![](images/shrinking.gif){width=100% fig-align="center"}
+
+
 ## References
 
 ::: {#refs}
+:::
+
+## References {visibility="hidden"}
+
 @2025TwoPhase
 @Chen1997
 @Mullins1964
@@ -407,6 +427,3 @@ Where $F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\mathbf{q}^\gamma\cdot\mathbf{n}�
 @Remmerswaal2022
 @Stefan1891
 @Weymouth2010
-:::
-
-
