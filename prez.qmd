@@ -234,6 +234,22 @@ Second-order convergence in $L^2$ norm for regular cells, superlinear for cut ce
 
 ![From 1D Space to 2D Space-Time](images/space_time.gif){width="80%" fig-align="center"}
 
+## Space-Time Discretization
+
+**Reynolds Transport Theorem:**
+
+$$\frac{d}{dt} \int_{\Omega(t)} f\, dV = \int_{\Omega(t)} \frac{\partial f}{\partial t}\, dV + \int_{\partial \Omega(t)} \bigl(\mathbf{w}\cdot\mathbf{n}\bigr) f\, dS$$
+
+Applied to heat equation in moving domain:
+
+\normalsize
+$$
+\left[ \int_{\Omega_p(t)}\! T_p\,dV\right]_{t_{n}}^{t^{n+1}} = \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} k_p \nabla T_p \cdot \mathbf{n} dS dt + \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} \Bigl(\mathbf{w}\!\cdot\!\mathbf{n}\Bigr) T_p\,dS dt 
+$$
+
+- Same discretization as before 
+- Additional term for moving interface
+
 ---
 
 ## VOF Advection vs. Iterative Method
