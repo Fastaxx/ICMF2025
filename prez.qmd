@@ -7,7 +7,7 @@ authors:
   V. Le Chenadec 
 date: today
 date-format: long
-institute: "Multiscale Modeling and Simulation Laboratory, Gustave Eiffel University, Champs-sur-Marne, France"
+institute: "Multiscale Modeling and Simulation Laboratory, CNRS MSME UMR 8208, Gustave Eiffel University"
 bibliography: references.bib
 highlight-style: github
 format:
@@ -29,7 +29,7 @@ format:
 ## Context & Challenges
 
 - **Interfacial Flows:** Two immiscible phases separated by a sharp interface
-- **Phase Change:** Solid ⇄ liquid, driven by latent heat
+- **Phase Change:** Solid ⇄ liquid, limited by latent heat or diffusion
 - **Applications:** Material processing, ice melting, crystal growth ...
 
 ![](images/ice.jpg){fig-align="center"}
@@ -39,14 +39,14 @@ format:
 ## Stefan-type Problems
 
 - Classical phase change problems where a moving boundary separates phases
-- Interface position $s(t)$ depends on temperature gradients $\nabla T_i$
+- Interface position $s(t)$ depends on heat fluxes $k_p \nabla T_p$
 $$
 \begin{aligned}
 &\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
-&\partial_t T_s - k_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
-&\partial_t T_l - k_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
-&T_s = T_l = T_m \quad \text{at interface}\\
+&\partial_t T_s - \alpha_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
+&\partial_t T_l - \alpha_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
 &\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n} - k_s\nabla T_s \cdot \mathbf{n} \quad \text{at interface}\\
+&T_s = T_l = T_m \quad \text{at interface}\\
 \end{aligned}
 $$
 
@@ -66,26 +66,28 @@ $$
 ![Cartesian grid with interface $\Gamma$ separating solid/liquid regions](images/cut_cell_with_conditions.svg){width=100% fig-align="center"}
 
 ::: {.column}
-**Two-Fluid Approach:**
+**4 Equations: Bulk \& Interface**
 $$
 \begin{cases}
-\text{Solid phase: } \frac{\partial T_s}{\partial t} = k_s \nabla^2 T_s \\
-\text{Liquid phase: } \frac{\partial T_l}{\partial t} = k_l \nabla^2 T_l
+\frac{\partial T_s}{\partial t} = \alpha_s \nabla^2 T_s \quad \text{in } \Omega_s \\
+\frac{\partial T_l}{\partial t} = \alpha_l \nabla^2 T_l \quad \text{in } \Omega_l \\
 \end{cases}
 $$
 
-**Four Unknowns:**
-
-- Bulk temperatures: $T_s$, $T_l$
-- Interface temperatures: $T_s^\Gamma$, $T_l^\Gamma$
-
-**Interface Conditions:**
 $$
+\begin{cases}
 \begin{aligned}
 ⟦T⟧ &= g(\mathbf{x}) \quad \text{on } \Gamma \\
 ⟦k \nabla T \cdot \mathbf{n}⟧ &= h(\mathbf{x}) \quad \text{on } \Gamma
 \end{aligned}
+\end{cases}
 $$
+
+**4 Unknowns:**
+
+- Bulk temperatures: $T_s$, $T_l$
+- Interface temperatures: $T_s^\Gamma$, $T_l^\Gamma$
+
 :::
 :::
 
@@ -94,27 +96,29 @@ $$
 
 ## Cut-Cell Discretization
 
+::: {layout-ncol=2}
+::: {.column}
 For each phase, we have the heat equation:
 $$
 \begin{aligned}
-\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= S_p \quad \text{in } \Omega_p, \quad p=\text{liquid, solid} \\
+\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= S_p \quad \text{in } \Omega_p
 \end{aligned}
 $$
 
 Integrating over control volume and integrating in time:
+:::
 
-\LARGE
+::: {.column}
+![](images/two_phase_cell_formulation.png){width=80% fig-align="center"}
+:::
+:::
+
+
 $$
+\small
 \int_{\Omega_p} (T_p^{n+1} - T_p^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla \tilde{T}_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla \tilde{T_p} \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} \tilde{S_p} \, dV \right]
 $$
 
-::: {layout-ncol=2}
-where 
-$$\tilde{T} = \theta T^{n+1} + (1-\theta)T^n$$
-- $\theta$ is a parameter between 0 and 1
-
-![](images/two_phase_cell_formulation.png){width=100% fig-align="center"}
-:::
 
 ---
 
@@ -122,30 +126,31 @@ $$\tilde{T} = \theta T^{n+1} + (1-\theta)T^n$$
 
 For each phase (solid, liquid), the discretization leads to:
 $$
-V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_f(\tilde{T}_p) + F_p^{\Gamma} + S_p V_p \right]
+V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_f(\tilde{T}_p) \cdot \mathbf{n_f}+ F_p^{\Gamma} + S_p V_p \right]
 $$
 
-Where $F_p^{\Gamma}$ is the interface flux in phase $p$.
+Where:
 
-Boundary conditions at the interface are defined as
+- Fluxes are computed using Stokes' theorem on staggered cells $\int_{\Omega_{f}} \nabla T \, dV = \int_{\partial\Omega_{f}} T \mathbf{n} \, dS$ 
+
+Boundary conditions at the interface are defined as:
 
 ::: {layout-ncol=2}
-**Temperature Jump :**
+**Temperature Jump:**
 $$
 \begin{aligned}
 ⟦T⟧ &= g \quad \text{on } \Gamma \\
+T_s^\Gamma -  T_l^\Gamma &= g(\mathbf{x})
 \end{aligned}
 $$
-$$ T_s^\Gamma -  T_l^\Gamma = g(\mathbf{x})$$
 
-**Heat Flux Jump :**
+**Heat Flux Jump:**
 $$
 \begin{aligned}
 ⟦k \nabla T \cdot \mathbf{n}⟧ &= h(\mathbf{x}) \quad \text{on } \Gamma \\
+F_s^\Gamma - F_l^\Gamma &= A_\Gamma h(\mathbf{x})
 \end{aligned}
 $$
-$$F_s^\Gamma - F_l^\Gamma = A_\Gamma h(\mathbf{x})$$
-
 :::
 
 ---
@@ -155,7 +160,7 @@ $$F_s^\Gamma - F_l^\Gamma = A_\Gamma h(\mathbf{x})$$
 $$
 \begin{bmatrix}
 M_{\text{bulk}}^s & M_{\text{int}}^s & 0 & 0 \\
-\alpha_s I & 0 & -\alpha_l I & 0 \\
+I & 0 & - I & 0 \\
 0 & 0 & M_{\text{bulk}}^l & M_{\text{int}}^l \\
 F_{\text{bulk}}^s & F_{\text{int}}^s & F_{\text{bulk}}^l & F_{\text{int}}^l
 \end{bmatrix}
@@ -182,22 +187,29 @@ $$
 
 ## Validation Case: 2D Two-Phase Heat Equation
 
-$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
-
+::: {layout-ncol=2}
+::: {.column}
 $$
 \begin{aligned}
 \frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= 0 \quad \text{in } \Omega_p \\
-T_s - \alpha_l T_l &= 0 \quad \text{on } \Gamma, \\
+T_s - \beta_l T_l &= 0 \quad \text{on } \Gamma, \\
 k_s \nabla T_s \cdot \mathbf{n} - k_l \nabla T_l \cdot \mathbf{n} &= 0 \quad \text{on } \Gamma, \\
 \end{aligned}
 $$
+:::
+
+::: {.column}
+![](images/henry_scheme.svg){width=100%}
+:::
+:::
+
 
 Analytical solution:
 $$
 \small
 \begin{aligned}
-T_s(r,t) &= \frac{4 T_{s,0} k_s k_l^2 \alpha_l}{\pi^2 R} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
-T_l(r,t) &= \frac{2 T_{l,0} k_s \sqrt{k_l} \alpha_l}{\pi} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+T_s(r,t) &= \frac{4 T_{s,0} k_s k_l^2 \beta_l}{\pi^2 R} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_l(r,t) &= \frac{2 T_{l,0} k_s \sqrt{k_l} \beta_l}{\pi} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
 \end{aligned}
 $$
 
@@ -205,10 +217,8 @@ $$
 
 ## Validation: 2D Two-Phase Heat Equation
 
-$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
-
 ::: {#fig-heat3 layout-ncol=1}
-![Convergence Results](images/heat_2d_2ph_henry_end.png){width=75%}
+![Temperature field](images/heat_2d_2ph_henry_end.png){width=80%}
 
 Sharp interface with no spurious oscillations
 :::
@@ -216,8 +226,6 @@ Sharp interface with no spurious oscillations
 ---
 
 ## Validation: 2D Two-Phase Heat Equation
-
-$\Omega_s$ is a disk with radius $R$. $\Omega_l$ is the complement of $\Omega_s$ in the unit square.
 
 ::: {#fig-heat2 layout-ncol=1}
 ![Convergence Results](images/two_phase_conv.png){width=60%}
@@ -230,7 +238,7 @@ Second-order convergence in $L^2$ norm for regular cells, superlinear for cut ce
 ## Space-Time Approach
 
 - Combine time with spatial domain (extrude cells across $\Delta t$)
-- Preserves conservation across time steps especially for discrete events (fresh/dead cells)
+- Discrete events (**fresh/dead cells**) carefully handled
 
 ![From 1D Space to 2D Space-Time](images/space_time.gif){width="80%" fig-align="center"}
 
@@ -259,12 +267,12 @@ $$
 **Traditional VOF Approach:**
 
 $$
-\frac{\partial c}{\partial t} + \nabla\cdot(c\,\mathbf{u}) = 0
+\frac{\partial c}{\partial t} + \mathbf{u} \cdot \nabla c = 0
 $$
 
 - **Challenges:**
-  - Velocity extension near interface
-  - Numerical errors
+  - Velocity extension
+  - Decoupling of interface and temperature field
 
 ![VOF Advection Schematic](images/vof_advection.png){width=90%}
 :::
@@ -274,12 +282,12 @@ $$
 
 
 $$
-\rho L \frac{\partial s}{\partial t} - ⟦\nabla T \cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
+\rho L \frac{\partial s}{\partial t} - ⟦k \nabla T \cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
 $$
 
 - **Advantages:**
-  - Enforces conservation
-  - Iteratively updates interface
+  - Enforces conservation localy 
+  - Interface update coupled with temperature field
 
 ![Newton-Based Schematic](images/rootfindingnewton.jpg){width=55%}
 :::
@@ -287,21 +295,21 @@ $$
 
 ---
 
-## Newton Iteration for Interface Tracking
+## Newton Iteration for Interface update
 
 - **Interface Representation**: Height function $y=s(x)$ with position $\mathbf{x}_\Gamma$
 
 - **Stefan Condition as Root-Finding Problem**: 
-  $$\rho\,L\,\dot{s} - ⟦\nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0$$
+  $$\rho\,L\,\dot{s} - ⟦k \nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0$$
 
 - **Newton Iteration Method**:
-  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})$$
+  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F^{(k)}}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})$$
 
 ::: {layout-ncol=2}
 ![](images/newton_update.svg){width=100%, fig-align="center"}
 
 - Iterate until convergence: $\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| < \epsilon$
-- Each iteration requires solving temperature field
+- Each iteration requires solving temperature field on updated domain
 :::
 
 ---
@@ -361,13 +369,14 @@ $$
   - Superlinear convergence
   - No interpolation needed for boundary conditions
 
-- **Space-time framework for moving interfaces**
+- **Space-time finite volume for moving interfaces**
   - Properly handles discrete events (fresh/dead cells)
   - Maintains conservation
 
-- **Implicit interface tracking**
-  - Fixed-point iterative procedure
-  - Enforces physics-based interface movement
+- **Implicit interface representation**
+  - No velocity extension, no reinitialization
+  - Newton iteration for interface update
+  - Coupling between interface update and temperature field
 
 
 # Questions ?
@@ -457,3 +466,4 @@ Gradient calculation at the interface using our cut-cell method (1st order)
 @Remmerswaal2022
 @Stefan1891
 @Weymouth2010
+@Quirós2024
