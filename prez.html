@@ -9,7 +9,7 @@
 <link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-bcbce66894bfa8e7e94e40e0186b9bb8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.29">
 
-  <meta name="dcterms.date" content="2025-04-30">
+  <meta name="dcterms.date" content="2025-05-02">
   <title>Numerical Modeling of Heat &amp; Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -156,12 +156,12 @@
 L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec 
 </div>
         <p class="quarto-title-affiliation">
-            Multiscale Modeling and Simulation Laboratory, Gustave Eiffel University, Champs-sur-Marne, France
+            Multiscale Modeling and Simulation Laboratory, CNRS MSME UMR 8208, Gustave Eiffel University
           </p>
     </div>
 </div>
 
-  <p class="date">April 30, 2025</p>
+  <p class="date">May 2, 2025</p>
 </section>
 <section>
 <section id="introduction" class="title-slide slide level1 center">
@@ -172,7 +172,7 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <h2>Context &amp; Challenges</h2>
 <ul>
 <li><strong>Interfacial Flows:</strong> Two immiscible phases separated by a sharp interface</li>
-<li><strong>Phase Change:</strong> Solid ⇄ liquid, driven by latent heat</li>
+<li><strong>Phase Change:</strong> Solid ⇄ liquid, limited by latent heat or diffusion</li>
 <li><strong>Applications:</strong> Material processing, ice melting, crystal growth …</li>
 </ul>
 
@@ -181,13 +181,13 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 <h2>Stefan-type Problems</h2>
 <ul>
 <li>Classical phase change problems where a moving boundary separates phases</li>
-<li>Interface position <span class="math inline">\(s(t)\)</span> depends on temperature gradients <span class="math inline">\(\nabla T_i\)</span> <span class="math display">\[
+<li>Interface position <span class="math inline">\(s(t)\)</span> depends on heat fluxes <span class="math inline">\(k_p \nabla T_p\)</span> <span class="math display">\[
 \begin{aligned}
 &amp;\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
-&amp;\partial_t T_s - k_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
-&amp;\partial_t T_l - k_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
-&amp;T_s = T_l = T_m \quad \text{at interface}\\
+&amp;\partial_t T_s - \alpha_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
+&amp;\partial_t T_l - \alpha_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
 &amp;\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n} - k_s\nabla T_s \cdot \mathbf{n} \quad \text{at interface}\\
+&amp;T_s = T_l = T_m \quad \text{at interface}\\
 \end{aligned}
 \]</span></li>
 </ul>
@@ -215,74 +215,79 @@ L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec
 </div>
 </div>
 <div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Two-Fluid Approach:</strong> <span class="math display">\[
+<p><strong>4 Equations: Bulk &amp; Interface</strong> <span class="math display">\[
 \begin{cases}
-\text{Solid phase: } \frac{\partial T_s}{\partial t} = k_s \nabla^2 T_s \\
-\text{Liquid phase: } \frac{\partial T_l}{\partial t} = k_l \nabla^2 T_l
+\frac{\partial T_s}{\partial t} = \alpha_s \nabla^2 T_s \quad \text{in } \Omega_s \\
+\frac{\partial T_l}{\partial t} = \alpha_l \nabla^2 T_l \quad \text{in } \Omega_l \\
 \end{cases}
 \]</span></p>
-<p><strong>Four Unknowns:</strong></p>
-<ul>
-<li>Bulk temperatures: <span class="math inline">\(T_s\)</span>, <span class="math inline">\(T_l\)</span></li>
-<li>Interface temperatures: <span class="math inline">\(T_s^\Gamma\)</span>, <span class="math inline">\(T_l^\Gamma\)</span></li>
-</ul>
-<p><strong>Interface Conditions:</strong> <span class="math display">\[
+<p><span class="math display">\[
+\begin{cases}
 \begin{aligned}
 ⟦T⟧ &amp;= g(\mathbf{x}) \quad \text{on } \Gamma \\
 ⟦k \nabla T \cdot \mathbf{n}⟧ &amp;= h(\mathbf{x}) \quad \text{on } \Gamma
 \end{aligned}
+\end{cases}
 \]</span></p>
+<p><strong>4 Unknowns:</strong></p>
+<ul>
+<li>Bulk temperatures: <span class="math inline">\(T_s\)</span>, <span class="math inline">\(T_l\)</span></li>
+<li>Interface temperatures: <span class="math inline">\(T_s^\Gamma\)</span>, <span class="math inline">\(T_l^\Gamma\)</span></li>
+</ul>
 </div></div>
 </div>
 </section>
 <section id="cut-cell-discretization" class="slide level2">
 <h2>Cut-Cell Discretization</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p>For each phase, we have the heat equation: <span class="math display">\[
 \begin{aligned}
-\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &amp;= S_p \quad \text{in } \Omega_p, \quad p=\text{liquid, solid} \\
+\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &amp;= S_p \quad \text{in } \Omega_p
 \end{aligned}
 \]</span></p>
 <p>Integrating over control volume and integrating in time:</p>
-<p><span class="math display">\[
-\int_{\Omega_p} (T_p^{n+1} - T_p^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla \tilde{T}_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla \tilde{T_p} \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} \tilde{S_p} \, dV \right]
-\]</span></p>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p>where <span class="math display">\[\tilde{T} = \theta T^{n+1} + (1-\theta)T^n\]</span> - <span class="math inline">\(\theta\)</span> is a parameter between 0 and 1</p>
-</div>
-<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="images/two_phase_cell_formulation.png" class="quarto-figure quarto-figure-center"></p>
 </figure>
 </div>
+</div></div>
 </div>
-</div>
-</div>
+<p><span class="math display">\[
+\small
+\int_{\Omega_p} (T_p^{n+1} - T_p^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla \tilde{T}_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla \tilde{T_p} \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} \tilde{S_p} \, dV \right]
+\]</span></p>
 </section>
 <section id="cut-cell-discretization-1" class="slide level2">
 <h2>Cut-Cell Discretization</h2>
 <p>For each phase (solid, liquid), the discretization leads to: <span class="math display">\[
-V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_f(\tilde{T}_p) + F_p^{\Gamma} + S_p V_p \right]
+V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_f(\tilde{T}_p) \cdot \mathbf{n_f}+ F_p^{\Gamma} + S_p V_p \right]
 \]</span></p>
-<p>Where <span class="math inline">\(F_p^{\Gamma}\)</span> is the interface flux in phase <span class="math inline">\(p\)</span>.</p>
-<p>Boundary conditions at the interface are defined as</p>
+<p>Where:</p>
+<ul>
+<li>Fluxes are computed using Stokes’ theorem on staggered cells <span class="math inline">\(\int_{\Omega_{f}} \nabla T \, dV = \int_{\partial\Omega_{f}} T \mathbf{n} \, dS\)</span></li>
+</ul>
+<p>Boundary conditions at the interface are defined as:</p>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Temperature Jump :</strong> <span class="math display">\[
+<p><strong>Temperature Jump:</strong> <span class="math display">\[
 \begin{aligned}
 ⟦T⟧ &amp;= g \quad \text{on } \Gamma \\
+T_s^\Gamma -  T_l^\Gamma &amp;= g(\mathbf{x})
 \end{aligned}
-\]</span> <span class="math display">\[ T_s^\Gamma -  T_l^\Gamma = g(\mathbf{x})\]</span></p>
+\]</span></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Heat Flux Jump :</strong> <span class="math display">\[
+<p><strong>Heat Flux Jump:</strong> <span class="math display">\[
 \begin{aligned}
 ⟦k \nabla T \cdot \mathbf{n}⟧ &amp;= h(\mathbf{x}) \quad \text{on } \Gamma \\
+F_s^\Gamma - F_l^\Gamma &amp;= A_\Gamma h(\mathbf{x})
 \end{aligned}
-\]</span> <span class="math display">\[F_s^\Gamma - F_l^\Gamma = A_\Gamma h(\mathbf{x})\]</span></p>
+\]</span></p>
 </div>
 </div>
 </div>
@@ -292,7 +297,7 @@ V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_
 <p><span class="math display">\[
 \begin{bmatrix}
 M_{\text{bulk}}^s &amp; M_{\text{int}}^s &amp; 0 &amp; 0 \\
-\alpha_s I &amp; 0 &amp; -\alpha_l I &amp; 0 \\
+I &amp; 0 &amp; - I &amp; 0 \\
 0 &amp; 0 &amp; M_{\text{bulk}}^l &amp; M_{\text{int}}^l \\
 F_{\text{bulk}}^s &amp; F_{\text{int}}^s &amp; F_{\text{bulk}}^l &amp; F_{\text{int}}^l
 \end{bmatrix}
@@ -318,25 +323,30 @@ A_\Gamma h
 </section>
 <section id="validation-case-2d-two-phase-heat-equation" class="slide level2">
 <h2>Validation Case: 2D Two-Phase Heat Equation</h2>
-<p><span class="math inline">\(\Omega_s\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_l\)</span> is the complement of <span class="math inline">\(\Omega_s\)</span> in the unit square.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><span class="math display">\[
 \begin{aligned}
 \frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &amp;= 0 \quad \text{in } \Omega_p \\
-T_s - \alpha_l T_l &amp;= 0 \quad \text{on } \Gamma, \\
+T_s - \beta_l T_l &amp;= 0 \quad \text{on } \Gamma, \\
 k_s \nabla T_s \cdot \mathbf{n} - k_l \nabla T_l \cdot \mathbf{n} &amp;= 0 \quad \text{on } \Gamma, \\
 \end{aligned}
 \]</span></p>
+</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img data-src="images/henry_scheme.svg"></p>
+</div></div>
+</div>
 <p>Analytical solution: <span class="math display">\[
 \small
 \begin{aligned}
-T_s(r,t) &amp;= \frac{4 T_{s,0} k_s k_l^2 \alpha_l}{\pi^2 R} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
-T_l(r,t) &amp;= \frac{2 T_{l,0} k_s \sqrt{k_l} \alpha_l}{\pi} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
+T_s(r,t) &amp;= \frac{4 T_{s,0} k_s k_l^2 \beta_l}{\pi^2 R} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
+T_l(r,t) &amp;= \frac{2 T_{l,0} k_s \sqrt{k_l} \beta_l}{\pi} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_1(uR)(J_0(k ur)\Phi(u) - Y_0(k ur)\Psi(u))}{u(\Phi^2(u) + \Psi^2(u))} du
 \end{aligned}
 \]</span></p>
 </section>
 <section id="validation-2d-two-phase-heat-equation" class="slide level2">
 <h2>Validation: 2D Two-Phase Heat Equation</h2>
-<p><span class="math inline">\(\Omega_s\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_l\)</span> is the complement of <span class="math inline">\(\Omega_s\)</span> in the unit square.</p>
 <div id="fig-heat3" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-heat3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -344,8 +354,8 @@ T_l(r,t) &amp;= \frac{2 T_{l,0} k_s \sqrt{k_l} \alpha_l}{\pi} \int_0^{\infty} \e
 <div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/heat_2d_2ph_henry_end.png" style="width:75.0%"></p>
-<figcaption>Convergence Results</figcaption>
+<p><img data-src="images/heat_2d_2ph_henry_end.png" style="width:80.0%"></p>
+<figcaption>Temperature field</figcaption>
 </figure>
 </div>
 </div>
@@ -359,7 +369,6 @@ Figure&nbsp;1: Sharp interface with no spurious oscillations
 </section>
 <section id="validation-2d-two-phase-heat-equation-1" class="slide level2">
 <h2>Validation: 2D Two-Phase Heat Equation</h2>
-<p><span class="math inline">\(\Omega_s\)</span> is a disk with radius <span class="math inline">\(R\)</span>. <span class="math inline">\(\Omega_l\)</span> is the complement of <span class="math inline">\(\Omega_s\)</span> in the unit square.</p>
 <div id="fig-heat2" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig">
 <div aria-describedby="fig-heat2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -389,7 +398,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <h2>Space-Time Approach</h2>
 <ul>
 <li>Combine time with spatial domain (extrude cells across <span class="math inline">\(\Delta t\)</span>)</li>
-<li>Preserves conservation across time steps especially for discrete events (fresh/dead cells)</li>
+<li>Discrete events (<strong>fresh/dead cells</strong>) carefully handled</li>
 </ul>
 
 <img data-src="images/space_time.gif" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">From 1D Space to 2D Space-Time</p></section>
@@ -413,13 +422,13 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Traditional VOF Approach:</strong></p>
 <p><span class="math display">\[
-\frac{\partial c}{\partial t} + \nabla\cdot(c\,\mathbf{u}) = 0
+\frac{\partial c}{\partial t} + \mathbf{u} \cdot \nabla c = 0
 \]</span></p>
 <ul>
 <li><strong>Challenges:</strong>
 <ul>
-<li>Velocity extension near interface</li>
-<li>Numerical errors</li>
+<li>Velocity extension</li>
+<li>Decoupling of interface and temperature field</li>
 </ul></li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
@@ -431,13 +440,13 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <p><strong>Our Iterative Method:</strong></p>
 <p><span class="math display">\[
-\rho L \frac{\partial s}{\partial t} - ⟦\nabla T \cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
+\rho L \frac{\partial s}{\partial t} - ⟦k \nabla T \cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
 \]</span></p>
 <ul>
 <li><strong>Advantages:</strong>
 <ul>
-<li>Enforces conservation</li>
-<li>Iteratively updates interface</li>
+<li>Enforces conservation localy</li>
+<li>Interface update coupled with temperature field</li>
 </ul></li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
@@ -449,12 +458,12 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div></div>
 </div>
 </section>
-<section id="newton-iteration-for-interface-tracking" class="slide level2">
-<h2>Newton Iteration for Interface Tracking</h2>
+<section id="newton-iteration-for-interface-update" class="slide level2">
+<h2>Newton Iteration for Interface update</h2>
 <ul>
 <li><p><strong>Interface Representation</strong>: Height function <span class="math inline">\(y=s(x)\)</span> with position <span class="math inline">\(\mathbf{x}_\Gamma\)</span></p></li>
-<li><p><strong>Stefan Condition as Root-Finding Problem</strong>: <span class="math display">\[\rho\,L\,\dot{s} - ⟦\nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0\]</span></p></li>
-<li><p><strong>Newton Iteration Method</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
+<li><p><strong>Stefan Condition as Root-Finding Problem</strong>: <span class="math display">\[\rho\,L\,\dot{s} - ⟦k \nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0\]</span></p></li>
+<li><p><strong>Newton Iteration Method</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F^{(k)}}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
 </ul>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
@@ -468,7 +477,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
 <li>Iterate until convergence: <span class="math inline">\(\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| &lt; \epsilon\)</span></li>
-<li>Each iteration requires solving temperature field</li>
+<li>Each iteration requires solving temperature field on updated domain</li>
 </ul>
 </div>
 </div>
@@ -565,15 +574,16 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <li>Superlinear convergence</li>
 <li>No interpolation needed for boundary conditions</li>
 </ul></li>
-<li><strong>Space-time framework for moving interfaces</strong>
+<li><strong>Space-time finite volume for moving interfaces</strong>
 <ul>
 <li>Properly handles discrete events (fresh/dead cells)</li>
 <li>Maintains conservation</li>
 </ul></li>
-<li><strong>Implicit interface tracking</strong>
+<li><strong>Implicit interface representation</strong>
 <ul>
-<li>Fixed-point iterative procedure</li>
-<li>Enforces physics-based interface movement</li>
+<li>No velocity extension, no reinitialization</li>
+<li>Newton iteration for interface update</li>
+<li>Coupling between interface update and temperature field</li>
 </ul></li>
 </ul>
 </section></section>
@@ -700,6 +710,9 @@ Polyanin, Andrei, and Vladimir Nazaikinskii. 2016. <em>Handbook of Linear Partia
 <div id="ref-Popinet2009" class="csl-entry" role="listitem">
 Popinet, Stéphane. 2009. <span>“An Accurate Adaptive Solver for Surface-Tension-Driven Interfacial Flows.”</span> <em>Journal of Computational Physics</em> 228 (16): 5838–66. https://doi.org/<a href="https://doi.org/10.1016/j.jcp.2009.04.042">https://doi.org/10.1016/j.jcp.2009.04.042</a>.
 </div>
+<div id="ref-Quirós2024" class="csl-entry" role="listitem">
+Quirós Rodríguez, Alejandro, Tomas Fullana, Vincent Le Chenadec, and Taraneh Sayadi. 2024. <span>“A Conservative Cartesian Cut-Cell Method for Mixed Boundary Conditions and the Incompressible Navier-Stokes Equations on Staggered Meshes.”</span> <a href="https://doi.org/10.2139/ssrn.4716171">https://doi.org/10.2139/ssrn.4716171</a>.
+</div>
 <div id="ref-Remmerswaal2022" class="csl-entry" role="listitem">
 Remmerswaal, Ronald A., and Arthur E. P. Veldman. 2022. <span>“A Sharp, Structure Preserving Two-Velocity Model for Two-Phase Flow.”</span> <a href="https://arxiv.org/abs/2210.08916">https://arxiv.org/abs/2210.08916</a>.
 </div>
@@ -716,7 +729,7 @@ Weymouth, Gabriel, and Dick Yue. 2010. <span>“Conservative Volume-of-Fluid Met
 </section>
 <section id="references-1" class="slide level2" data-visibility="uncounted">
 <h2>References</h2>
-<p><span class="citation" data-cites="2025TwoPhase">TwoPhase (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span> <span class="citation" data-cites="Chen1997">Chen et al. (<a href="#/references" role="doc-biblioref" onclick="">1997</a>)</span> <span class="citation" data-cites="Mullins1964">Mullins (<a href="#/references" role="doc-biblioref" onclick="">1964</a>)</span> <span class="citation" data-cites="Polyanin2016">Polyanin and Nazaikinskii (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> <span class="citation" data-cites="Popinet2009">Popinet (<a href="#/references" role="doc-biblioref" onclick="">2009</a>)</span> <span class="citation" data-cites="Remmerswaal2022">Remmerswaal and Veldman (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span> <span class="citation" data-cites="Stefan1891">Stefan (<a href="#/references" role="doc-biblioref" onclick="">1891</a>)</span> <span class="citation" data-cites="Weymouth2010">Weymouth and Yue (<a href="#/references" role="doc-biblioref" onclick="">2010</a>)</span></p>
+<p><span class="citation" data-cites="2025TwoPhase">TwoPhase (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span> <span class="citation" data-cites="Chen1997">Chen et al. (<a href="#/references" role="doc-biblioref" onclick="">1997</a>)</span> <span class="citation" data-cites="Mullins1964">Mullins (<a href="#/references" role="doc-biblioref" onclick="">1964</a>)</span> <span class="citation" data-cites="Polyanin2016">Polyanin and Nazaikinskii (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> <span class="citation" data-cites="Popinet2009">Popinet (<a href="#/references" role="doc-biblioref" onclick="">2009</a>)</span> <span class="citation" data-cites="Remmerswaal2022">Remmerswaal and Veldman (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span> <span class="citation" data-cites="Stefan1891">Stefan (<a href="#/references" role="doc-biblioref" onclick="">1891</a>)</span> <span class="citation" data-cites="Weymouth2010">Weymouth and Yue (<a href="#/references" role="doc-biblioref" onclick="">2010</a>)</span> <span class="citation" data-cites="Quirós2024">Quirós Rodríguez et al. (<a href="#/references" role="doc-biblioref" onclick="">2024</a>)</span></p>
 
 </section></section>
     </div>
