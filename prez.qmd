@@ -1,5 +1,10 @@
 ---
 title: "Numerical Modeling of Heat & Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation"
+title-slide-attributes: 
+  data-background-image: images/MSME.jpg, images/Logo_Centre_national_de_la_recherche_scientifique_\(2023-\).svg, images/Logo_Université_Gustave_Eiffel_2020.svg
+  data-background-size: 12%, 12%, 12%
+  data-background-position: 25% 65%, 50% 65%, 75% 65%
+  data-background-repeat: no-repeat
 authors: 
   L. Libat, 
   E. Chénier, 
@@ -101,7 +106,7 @@ $$
 For each phase, we have the heat equation:
 $$
 \begin{aligned}
-\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= S_p \quad \text{in } \Omega_p
+\frac{\partial T_p}{\partial t} - \alpha_p \nabla \cdot (\nabla T_p) &= S_p \quad \text{in } \Omega_p
 \end{aligned}
 $$
 
@@ -113,12 +118,10 @@ Integrating over control volume and integrating in time:
 :::
 :::
 
-
 $$
 \small
-\int_{\Omega_p} (T_p^{n+1} - T_p^n) \, dV = \Delta t \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla \tilde{T}_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla \tilde{T_p} \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} \tilde{S_p} \, dV \right]
+\int_{t^n}^{t^{n+1}} \int_{\Omega_p} \frac{\partial T_p}{\partial t} \, dV dt = \int_{t^n}^{t^{n+1}} \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} S_p \, dV \right] dt
 $$
-
 
 ---
 
@@ -441,6 +444,35 @@ Where $F_i = \rho L (V_i^{n+1} - V_i^{n}) - ⟦\nabla T \cdot\mathbf{n}⟧$ is t
 2nd order gradient calculation at the interface using Johansen and Colella method
 
 Gradient calculation at the interface using our cut-cell method (1st order)
+:::
+
+## Appendix: Flux Computation Using Stokes' Theorem
+
+::: {layout-ncol=2}
+::: {.column}
+**Stokes' Theorem Application:**
+
+$$\int_{\Omega_{f}} \nabla T \, dV = \int_{\partial\Omega_{f}} T \mathbf{n} \, dS$$
+
+- Create staggered control volume around each face
+- Compute gradient as surface integral:
+
+$$\nabla_f T \approx \frac{1}{V_f} \int_{\partial\Omega_{f}} T \mathbf{n} \, dS$$
+
+- Preserves conservation
+- Handles irregular geometries naturally
+:::
+
+::: {.column}
+![](images/staggered_cell_visualization.svg){width=100%}
+
+**Practical Implementation:**
+
+$$\int_{\partial\Omega_{f}} T \mathbf{n} \, dS \approx \sum_{e \in \partial\Omega_f} T_e A_e \mathbf{n}_e$$
+
+- Second-order for regular cells
+- First-order for cut cells
+:::
 :::
 
 ## Appendix : Prescribed Interface Motion
