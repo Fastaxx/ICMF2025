@@ -551,18 +551,3 @@ margin-top: -50px;
     font-size: 14px;
     text-align: center !important;
 }
-
-
-/* Add a new rule that targets only the title slide */
-.reveal .backgrounds {
-    background-image: url(images/MSME.jpg), url(images/Logo_Centre_national_de_la_recherche_scientifique_\(2023-\).svg), url(images/Logo_Université_Gustave_Eiffel_2020.svg);
-    background-repeat: no-repeat;
-    background-position: 50px 300px, 280px 270px, 500px 320px;
-    background-size: 150px, 150px, 150px;
-    position: relative;
-    top: 200px;
-}
-
-.reveal:not(.title-slide) .backgrounds {
-    background-image: none;
-}
