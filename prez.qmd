@@ -1,10 +1,10 @@
 ---
 title: "Numerical Modeling of Heat & Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation"
 title-slide-attributes: 
-  data-background-image: images/MSME.jpg, images/logocnrs.svg, images/logouge.svg
-  data-background-repeat: no-repeat no-repeat no-repeat
-  data-background-size: 10%, 10%, 10%
-  data-background-position: 25% 80%, 50% 85%, 75% 80%
+  data-background-image: "images/logos.png"
+  data-background-repeat: no-repeat
+  data-background-size: 50%
+  data-background-position: 50% 90%
 authors: 
   L. Libat, 
   E. Chénier, 
