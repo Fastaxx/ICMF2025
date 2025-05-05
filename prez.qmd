@@ -6,7 +6,7 @@ title-slide-attributes:
   data-background-size: 50%
   data-background-position: 50% 90%
 authors: 
-  L. Libat, 
+  <u>L. Libat</u>, 
   E. Chénier, 
   C. Selçuk,
   V. Le Chenadec 
@@ -238,10 +238,11 @@ Second-order convergence in $L^2$ norm for regular cells, superlinear for cut ce
 
 # Cut Cell Method for moving interfaces
 
-## Space-Time Approach
+## Finite-Volume Space-Time Method
 
 - Combine time with spatial domain (extrude cells across $\Delta t$)
 - Discrete events (**fresh/dead cells**) carefully handled
+- Extension to 2D (3D ST) and 3D (4D ST) possible
 
 ![From 1D Space to 2D Space-Time](images/space_time.gif){width="80%" fig-align="center"}
 
@@ -289,7 +290,7 @@ $$
 $$
 
 - **Advantages:**
-  - Enforces conservation localy 
+  - Enforces conservation locally 
   - Interface update coupled with temperature field
 
 ![Newton-Based Schematic](images/rootfindingnewton.jpg){width=55%}
@@ -312,7 +313,7 @@ $$
 ![](images/newton_update.svg){width=100%, fig-align="center"}
 
 - Iterate until convergence: $\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| < \epsilon$
-- Each iteration requires solving temperature field on updated domain
+- Each iteration requires solving temperature fields on updated domains
 :::
 
 ---
@@ -334,7 +335,7 @@ $$
 
 ## Convergence Properties
 
-- Linear convergence observed ($O(k^{1.1})$)
+- Fast convergence : 3, 4 iterations sufficient
 - Efficient with good initial guess (extrapolation or velocity-based)
 
 ![Residuals (log10)](images/residual_withguess.png){width=80%}
@@ -384,6 +385,20 @@ $$
 
 # Questions ?
 Thank you for your attention!
+
+&nbsp; 
+
+::: {layout-ncol=2}
+::: {.column width="50%"}
+Contact & Resources
+
+- Slides available at: [fastaxx.github.io/ICMF2025](https://fastaxx.github.io/ICMF2025)
+:::
+
+::: {.column width="50%"}
+![Scan for slides](images/qr_code_icmf.png){width="60%" fig-align="center"}
+:::
+:::
 
 # Appendix {.appendix visibility="uncounted"}
 
