@@ -153,7 +153,7 @@
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-L. Libat, E. Chénier, C. Selçuk, V. Le Chenadec 
+<u>L. Libat</u>, E. Chénier, C. Selçuk, V. Le Chenadec 
 </div>
         <p class="quarto-title-affiliation">
             Multiscale Modeling and Simulation Laboratory, CNRS MSME UMR 8208, Gustave Eiffel University
@@ -394,11 +394,12 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <h1>Cut Cell Method for moving interfaces</h1>
 
 </section>
-<section id="space-time-approach" class="slide level2">
-<h2>Space-Time Approach</h2>
+<section id="finite-volume-space-time-method" class="slide level2">
+<h2>Finite-Volume Space-Time Method</h2>
 <ul>
 <li>Combine time with spatial domain (extrude cells across <span class="math inline">\(\Delta t\)</span>)</li>
 <li>Discrete events (<strong>fresh/dead cells</strong>) carefully handled</li>
+<li>Extension to 2D (3D ST) and 3D (4D ST) possible</li>
 </ul>
 
 <img data-src="images/space_time.gif" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">From 1D Space to 2D Space-Time</p></section>
@@ -445,7 +446,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <ul>
 <li><strong>Advantages:</strong>
 <ul>
-<li>Enforces conservation localy</li>
+<li>Enforces conservation locally</li>
 <li>Interface update coupled with temperature field</li>
 </ul></li>
 </ul>
@@ -477,7 +478,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
 <li>Iterate until convergence: <span class="math inline">\(\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| &lt; \epsilon\)</span></li>
-<li>Each iteration requires solving temperature field on updated domain</li>
+<li>Each iteration requires solving temperature fields on updated domains</li>
 </ul>
 </div>
 </div>
@@ -524,7 +525,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <section id="convergence-properties" class="slide level2">
 <h2>Convergence Properties</h2>
 <ul>
-<li>Linear convergence observed (<span class="math inline">\(O(k^{1.1})\)</span>)</li>
+<li>Fast convergence : 3, 4 iterations sufficient</li>
 <li>Efficient with good initial guess (extrapolation or velocity-based)</li>
 </ul>
 
@@ -590,6 +591,23 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <section id="questions" class="title-slide slide level1 center">
 <h1>Questions ?</h1>
 <p>Thank you for your attention!</p>
+<p>&nbsp;</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p>Contact &amp; Resources</p>
+<ul>
+<li>Slides available at: <a href="https://fastaxx.github.io/ICMF2025">fastaxx.github.io/ICMF2025</a></li>
+</ul>
+</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/qr_code_icmf.png" style="width:60.0%"></p>
+<figcaption>Scan for slides</figcaption>
+</figure>
+</div>
+</div></div>
+</div>
 </section>
 
 <section>
