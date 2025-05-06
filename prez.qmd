@@ -386,20 +386,6 @@ $$
 # Questions ?
 Thank you for your attention!
 
-&nbsp; 
-
-::: {layout-ncol=2}
-::: {.column width="50%"}
-Contact & Resources
-
-- Slides available at: [fastaxx.github.io/ICMF2025](https://fastaxx.github.io/ICMF2025)
-:::
-
-::: {.column width="50%"}
-![Scan for slides](images/qr_code_icmf.png){width="60%" fig-align="center"}
-:::
-:::
-
 # Appendix {.appendix visibility="uncounted"}
 
 ## Future Work
@@ -496,6 +482,19 @@ $$\int_{\partial\Omega_{f}} T \mathbf{n} \, dS \approx \sum_{e \in \partial\Omeg
 - Minimium cell number to resolve the interface : $6 \times 6$ cells
 
 ![](images/shrinking.gif){width=100% fig-align="center"}
+
+---
+
+## Appendix : Fresh/Dead Cells
+
+- **Fresh Cells**: Empty cells at $t^n$ but partially filled at $t^{n+1}$
+- **Dead Cells**: Partially filled cells at $t^n$ but empty at $t^{n+1}$
+
+- **Handling**: 
+  - Still solve for temperature in those cells
+  - Find the temperature to ensure conservation
+
+![](images/deadcell.svg){width=100% fig-align="center"}
 
 
 ## References
