@@ -6,10 +6,10 @@
 <script src="prez_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="prez_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="prez_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-bcbce66894bfa8e7e94e40e0186b9bb8.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.29">
+<link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-662ae1889177880cb371f83234c0a158.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.30">
 
-  <meta name="dcterms.date" content="2025-05-05">
+  <meta name="dcterms.date" content="2025-05-06">
   <title>Numerical Modeling of Heat &amp; Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -161,7 +161,7 @@
     </div>
 </div>
 
-  <p class="date">May 5, 2025</p>
+  <p class="date">May 6, 2025</p>
 </section>
 <section>
 <section id="introduction" class="title-slide slide level1 center">
@@ -591,23 +591,6 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <section id="questions" class="title-slide slide level1 center">
 <h1>Questions ?</h1>
 <p>Thank you for your attention!</p>
-<p>&nbsp;</p>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p>Contact &amp; Resources</p>
-<ul>
-<li>Slides available at: <a href="https://fastaxx.github.io/ICMF2025">fastaxx.github.io/ICMF2025</a></li>
-</ul>
-</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="images/qr_code_icmf.png" style="width:60.0%"></p>
-<figcaption>Scan for slides</figcaption>
-</figure>
-</div>
-</div></div>
-</div>
 </section>
 
 <section>
@@ -740,6 +723,19 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </ul>
 
 <img data-src="images/shrinking.gif" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
+<section id="appendix-freshdead-cells" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Fresh/Dead Cells</h2>
+<ul>
+<li><p><strong>Fresh Cells</strong>: Empty cells at <span class="math inline">\(t^n\)</span> but partially filled at <span class="math inline">\(t^{n+1}\)</span></p></li>
+<li><p><strong>Dead Cells</strong>: Partially filled cells at <span class="math inline">\(t^n\)</span> but empty at <span class="math inline">\(t^{n+1}\)</span></p></li>
+<li><p><strong>Handling</strong>:</p>
+<ul>
+<li>Still solve for temperature in those cells</li>
+<li>Find the temperature to ensure conservation</li>
+</ul></li>
+</ul>
+
+<img data-src="images/deadcell.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
 <section id="references" class="slide level2 smaller scrollable" data-visibility="uncounted">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
