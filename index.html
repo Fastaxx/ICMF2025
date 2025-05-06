@@ -206,7 +206,7 @@
 &amp;\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
 &amp;\partial_t T_s - \alpha_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
 &amp;\partial_t T_l - \alpha_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
-&amp;\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n} - k_s\nabla T_s \cdot \mathbf{n} \quad \text{at interface}\\
+&amp;\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n_{sl}} - k_s\nabla T_s \cdot \mathbf{n_{sl}} \quad \text{at interface}\\
 &amp;T_s = T_l = T_m \quad \text{at interface}\\
 \end{aligned}
 \]</span></li>
@@ -278,7 +278,7 @@
 </div>
 <p><span class="math display">\[
 \small
-\int_{t^n}^{t^{n+1}} \int_{\Omega_p} \frac{\partial T_p}{\partial t} \, dV dt = \int_{t^n}^{t^{n+1}} \left[ \color{blue}{\int_{\partial\Omega_p&nbsp;\setminus \Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} S_p \, dV \right] dt
+\int_{t^n}^{t^{n+1}} \int_{\Omega_p} \frac{\partial T_p}{\partial t} \, dV dt = \int_{t^n}^{t^{n+1}} \left[ \underbrace{\int_{\partial\Omega_p&nbsp;\setminus \Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Regular Flux}} + \underbrace{\int_{\Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Interface Flux}} + \int_{\Omega_p} S_p \, dV \right] dt
 \]</span></p>
 </section>
 <section id="cut-cell-discretization-1" class="slide level2">
@@ -297,7 +297,7 @@ V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_
 <p><strong>Temperature Jump:</strong> <span class="math display">\[
 \begin{aligned}
 ⟦T⟧ &amp;= g \quad \text{on } \Gamma \\
-T_s^\Gamma -  T_l^\Gamma &amp;= g(\mathbf{x})
+T_s^\Gamma -  T_l^\Gamma &amp;= g(\mathbf{x_\Gamma})
 \end{aligned}
 \]</span></p>
 </div>
@@ -305,7 +305,7 @@ T_s^\Gamma -  T_l^\Gamma &amp;= g(\mathbf{x})
 <p><strong>Heat Flux Jump:</strong> <span class="math display">\[
 \begin{aligned}
 ⟦k \nabla T \cdot \mathbf{n}⟧ &amp;= h(\mathbf{x}) \quad \text{on } \Gamma \\
-F_s^\Gamma - F_l^\Gamma &amp;= A_\Gamma h(\mathbf{x})
+F_s^\Gamma - F_l^\Gamma &amp;= A_\Gamma h(\mathbf{x_\Gamma})
 \end{aligned}
 \]</span></p>
 </div>
@@ -357,7 +357,7 @@ k_s \nabla T_s \cdot \mathbf{n} - k_l \nabla T_l \cdot \mathbf{n} &amp;= 0 \quad
 <p><img data-src="images/henry_scheme.svg"></p>
 </div></div>
 </div>
-<p>Analytical solution: <span class="math display">\[
+<p>Analytical solution (Keyhole Contour Integration) <span class="math display">\[
 \small
 \begin{aligned}
 T_s(r,t) &amp;= \frac{4 T_{s,0} k_s k_l^2 \beta_l}{\pi^2 R} \int_0^{\infty} \exp{(-k_s u^2 t)} \frac{J_0(ur) J_1(uR)}{u^2(\Phi^2(u) + \Psi^2(u))} du \\
@@ -429,7 +429,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <p><span class="math display">\[\frac{d}{dt} \int_{\Omega(t)} f\, dV = \int_{\Omega(t)} \frac{\partial f}{\partial t}\, dV + \int_{\partial \Omega(t)} \bigl(\mathbf{w}\cdot\mathbf{n}\bigr) f\, dS\]</span></p>
 <p>Applied to heat equation in moving domain:</p>
 <p><span class="math display">\[
-\left[ \int_{\Omega_p(t)}\! T_p\,dV\right]_{t_{n}}^{t^{n+1}} = \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} k_p \nabla T_p \cdot \mathbf{n} dS dt + \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} \Bigl(\mathbf{w}\!\cdot\!\mathbf{n}\Bigr) T_p\,dS dt
+\left[ \int_{\Omega_p(t)}\! T_p\,dV\right]_{t_{n}}^{t^{n+1}} = \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} \alpha_p \nabla T_p \cdot \mathbf{n} dS dt + \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} \Bigl(\mathbf{w}\!\cdot\!\mathbf{n}\Bigr) T_p\,dS dt
 \]</span></p>
 <ul>
 <li>Same discretization as before</li>
@@ -482,9 +482,9 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <section id="newton-iteration-for-interface-update" class="slide level2">
 <h2>Newton Iteration for Interface update</h2>
 <ul>
-<li><p><strong>Interface Representation</strong>: Height function <span class="math inline">\(y=s(x)\)</span> with position <span class="math inline">\(\mathbf{x}_\Gamma\)</span></p></li>
-<li><p><strong>Stefan Condition as Root-Finding Problem</strong>: <span class="math display">\[\rho\,L\,\dot{s} - ⟦k \nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0\]</span></p></li>
-<li><p><strong>Newton Iteration Method</strong>: <span class="math display">\[\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F^{(k)}}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})\]</span></p></li>
+<li><p><strong>Interface Representation</strong>: Height function <span class="math inline">\(y=s(x)\)</span> with position <span class="math inline">\(\mathbf{s}_\Gamma\)</span></p></li>
+<li><p><strong>Stefan Condition as Root-Finding Problem</strong>: <span class="math display">\[\rho\,L\,\dot{s} - ⟦k \nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{s}_\Gamma, T) = 0\]</span></p></li>
+<li><p><strong>Newton Iteration Method</strong>: <span class="math display">\[\mathbf{s}_\Gamma^{n+1,(k+1)} = \mathbf{s}_\Gamma^{n+1,(k)} - \left(\frac{\partial F^{(k)}}{\partial \mathbf{s}_\Gamma}\right)^{-1}F(\mathbf{s}_\Gamma^{n+1,(k)})\]</span></p></li>
 </ul>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
@@ -496,7 +496,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div>
 </div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <ul>
-<li>Iterate until convergence: <span class="math inline">\(\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| &lt; \epsilon\)</span></li>
+<li>Iterate until convergence: <span class="math inline">\(\|F(\mathbf{s}_\Gamma^{n+1,(k)})\| &lt; \epsilon\)</span></li>
 <li>Each iteration requires solving temperature fields on updated domains</li>
 </ul>
 </div></div>
@@ -504,9 +504,9 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </section>
 <section id="newton-iteration-for-interface-update-1" class="slide level2">
 <h2>Newton Iteration for Interface update</h2>
-<div class="pseudocode-container quarto-float" data-comment-delimiter="//" data-indent-size="1.2em" data-line-number-punc=":" data-no-end="false" data-pseudocode-number="1" data-caption-prefix="Algorithm" data-line-number="true">
+<div class="pseudocode-container quarto-float" data-no-end="false" data-caption-prefix="Algorithm" data-indent-size="1.2em" data-pseudocode-number="1" data-comment-delimiter="//" data-line-number-punc=":" data-line-number="true">
 <div class="pseudocode">
-\begin{algorithm} \caption{\large Newton Iteration for Interface Position}\begin{algorithmic} \State $k \gets 0$ \State Initialize: $x^{n+1,0} \gets x^n$ or $x^n + \int_{t^n}^{t^{n+1}} v(t)\,dt$ \Repeat \State Solve: $\partial_t T_p^k - \alpha_p \Delta T_p^k = 0$ in $\Omega_p^k(t)$ \State Compute mismatch: $r = F(x^{n+1,k}) = \rho L v - [[q\cdot n]]$ \If{$|r| &lt; \epsilon$} \State Converged \Else \State Update: $x^{n+1,k+1} = x^{n+1,k} - (\partial_x F(x^{n+1,k}))^{-1} r$ \State $k \gets k+1$ \EndIf \Until{converged} \end{algorithmic} \end{algorithm}
+\begin{algorithm} \caption{\large Newton Iteration for Interface Position}\begin{algorithmic} \State $k \gets 0$ \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \int_{t^n}^{t^{n+1}} v(t)\,dt$ \Repeat \State Solve: $\partial_t T_p^k - \alpha_p \Delta T_p^k = 0$ in $\Omega_p^k(t)$ \State Compute mismatch: $r = F(s^{n+1,k},T) = \rho L v - [[q\cdot n]]$ \If{$|r| &lt; \epsilon$} \State Converged \Else \State Update: $s^{n+1,k+1} = s^{n+1,k} - (\partial_s F(s^{n+1,k}))^{-1} r$ \State $k \gets k+1$ \EndIf \Until{converged} \end{algorithmic} \end{algorithm}
 </div>
 </div>
 </section>
@@ -624,8 +624,8 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <h1>Appendix</h1>
 
 </section>
-<section id="future-work" class="slide level2" data-visibility="uncounted">
-<h2>Future Work</h2>
+<section id="appendix-future-work" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Future Work</h2>
 <ul>
 <li>Front-tracking approach for interface representation :
 <ul>
@@ -646,8 +646,8 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </ul></li>
 </ul>
 </section>
-<section id="fixed-point-theoretical-framework" class="slide level2" data-visibility="uncounted">
-<h2>Fixed-Point Theoretical Framework</h2>
+<section id="appendix-fixed-point-theoretical-framework" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Fixed-Point Theoretical Framework</h2>
 <ul>
 <li><p><strong>Fixed-Point Formulation</strong>: <span class="math inline">\(\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})\)</span></p></li>
 <li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{x}_\Gamma^{n+1}\)</span>.</p></li>
@@ -659,8 +659,8 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </figure>
 </div>
 </section>
-<section id="front-tracking-enhancement" class="slide level2" data-visibility="uncounted">
-<h2>Front-Tracking Enhancement</h2>
+<section id="appendix-front-tracking-enhancement" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Front-Tracking Enhancement</h2>
 <ul>
 <li>Interface represented by a set of markers with positions <span class="math inline">\(\vec{X}_I\)</span></li>
 <li>Interface update formulated as optimization problem: <span class="math inline">\(\mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}\)</span></li>
@@ -762,6 +762,14 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </ul>
 
 <img data-src="images/deadcell.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
+<section id="appendix-local-conservation-via-newton-iteration" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Local Conservation via Newton Iteration</h2>
+<ul>
+<li><strong>Local Conservation</strong>: Enforce conservation at each iteration</li>
+<li><strong>Residual</strong>: <span class="math inline">\(F(\mathbf{s}_\Gamma^{n+1,(k)}) = \rho L v - ⟦k \nabla T \cdot \mathbf{n}⟧\)</span></li>
+</ul>
+
+<img data-src="images/energy_error.png" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
 <section id="references" class="slide level2 smaller scrollable" data-visibility="uncounted">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
