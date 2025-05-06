@@ -74,7 +74,7 @@ $$
 &\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
 &\partial_t T_s - \alpha_s\nabla^2 T_s = 0 \quad \text{in solid phase}\\
 &\partial_t T_l - \alpha_l\nabla^2 T_l = 0 \quad \text{in liquid phase}\\
-&\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n} - k_s\nabla T_s \cdot \mathbf{n} \quad \text{at interface}\\
+&\rho L\dot{s} = k_l\nabla T_l \cdot \mathbf{n_{sl}} - k_s\nabla T_s \cdot \mathbf{n_{sl}} \quad \text{at interface}\\
 &T_s = T_l = T_m \quad \text{at interface}\\
 \end{aligned}
 $$
@@ -144,7 +144,7 @@ Integrating over control volume and integrating in time:
 
 $$
 \small
-\int_{t^n}^{t^{n+1}} \int_{\Omega_p} \frac{\partial T_p}{\partial t} \, dV dt = \int_{t^n}^{t^{n+1}} \left[ \color{blue}{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS} + \color{red}{\int_{\Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS} + \int_{\Omega_p} S_p \, dV \right] dt
+\int_{t^n}^{t^{n+1}} \int_{\Omega_p} \frac{\partial T_p}{\partial t} \, dV dt = \int_{t^n}^{t^{n+1}} \left[ \underbrace{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Regular Flux}} + \underbrace{\int_{\Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Interface Flux}} + \int_{\Omega_p} S_p \, dV \right] dt
 $$
 
 ---
@@ -167,7 +167,7 @@ Boundary conditions at the interface are defined as:
 $$
 \begin{aligned}
 ⟦T⟧ &= g \quad \text{on } \Gamma \\
-T_s^\Gamma -  T_l^\Gamma &= g(\mathbf{x})
+T_s^\Gamma -  T_l^\Gamma &= g(\mathbf{x_\Gamma})
 \end{aligned}
 $$
 
@@ -175,7 +175,7 @@ $$
 $$
 \begin{aligned}
 ⟦k \nabla T \cdot \mathbf{n}⟧ &= h(\mathbf{x}) \quad \text{on } \Gamma \\
-F_s^\Gamma - F_l^\Gamma &= A_\Gamma h(\mathbf{x})
+F_s^\Gamma - F_l^\Gamma &= A_\Gamma h(\mathbf{x_\Gamma})
 \end{aligned}
 $$
 :::
@@ -231,7 +231,7 @@ $$
 :::
 
 
-Analytical solution:
+Analytical solution (Keyhole Contour Integration)
 $$
 \small
 \begin{aligned}
@@ -280,7 +280,7 @@ Applied to heat equation in moving domain:
 
 \normalsize
 $$
-\left[ \int_{\Omega_p(t)}\! T_p\,dV\right]_{t_{n}}^{t^{n+1}} = \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} k_p \nabla T_p \cdot \mathbf{n} dS dt + \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} \Bigl(\mathbf{w}\!\cdot\!\mathbf{n}\Bigr) T_p\,dS dt 
+\left[ \int_{\Omega_p(t)}\! T_p\,dV\right]_{t_{n}}^{t^{n+1}} = \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} \alpha_p \nabla T_p \cdot \mathbf{n} dS dt + \int_{t^n}^{t^{n+1}}\int_{\partial\Omega_p(t)} \Bigl(\mathbf{w}\!\cdot\!\mathbf{n}\Bigr) T_p\,dS dt 
 $$
 
 - Same discretization as before 
@@ -325,13 +325,13 @@ $$
 
 ## Newton Iteration for Interface update
 
-- **Interface Representation**: Height function $y=s(x)$ with position $\mathbf{x}_\Gamma$
+- **Interface Representation**: Height function $y=s(x)$ with position $\mathbf{s}_\Gamma$
 
 - **Stefan Condition as Root-Finding Problem**: 
-  $$\rho\,L\,\dot{s} - ⟦k \nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{x}_\Gamma) = 0$$
+  $$\rho\,L\,\dot{s} - ⟦k \nabla T\cdot\mathbf{n}⟧ = 0 \quad \Rightarrow \quad F(\mathbf{s}_\Gamma, T) = 0$$
 
 - **Newton Iteration Method**:
-  $$\mathbf{x}_\Gamma^{n+1,(k+1)} = \mathbf{x}_\Gamma^{n+1,(k)} - \left(\frac{\partial F^{(k)}}{\partial \mathbf{x}_\Gamma}\right)^{-1}F(\mathbf{x}_\Gamma^{n+1,(k)})$$
+  $$\mathbf{s}_\Gamma^{n+1,(k+1)} = \mathbf{s}_\Gamma^{n+1,(k)} - \left(\frac{\partial F^{(k)}}{\partial \mathbf{s}_\Gamma}\right)^{-1}F(\mathbf{s}_\Gamma^{n+1,(k)})$$
 
 ::: {layout-ncol=2}
 ::: {.column}
@@ -339,7 +339,7 @@ $$
 :::
 
 ::: {.column}
-- Iterate until convergence: $\|F(\mathbf{x}_\Gamma^{n+1,(k)})\| < \epsilon$
+- Iterate until convergence: $\|F(\mathbf{s}_\Gamma^{n+1,(k)})\| < \epsilon$
 - Each iteration requires solving temperature fields on updated domains
 :::
 :::
@@ -361,14 +361,14 @@ $$
   \caption{\large Newton Iteration for Interface Position}
     \begin{algorithmic}[1]
       \State $k \gets 0$
-      \State Initialize: $x^{n+1,0} \gets x^n$ or $x^n + \int_{t^n}^{t^{n+1}} v(t)\,dt$
+      \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \int_{t^n}^{t^{n+1}} v(t)\,dt$
       \Repeat
         \State Solve: $\partial_t T_p^k - \alpha_p \Delta T_p^k = 0$ in $\Omega_p^k(t)$
-        \State Compute mismatch: $r = F(x^{n+1,k}) = \rho L v - [[q\cdot n]]$
+        \State Compute mismatch: $r = F(s^{n+1,k},T) = \rho L v - [[q\cdot n]]$
           \If{$|r| < \epsilon$}
             \State Converged
           \Else
-            \State Update: $x^{n+1,k+1} = x^{n+1,k} - (\partial_x F(x^{n+1,k}))^{-1} r$
+            \State Update: $s^{n+1,k+1} = s^{n+1,k} - (\partial_s F(s^{n+1,k}))^{-1} r$
             \State $k \gets k+1$
           \EndIf
         \Until{converged}
@@ -448,7 +448,7 @@ Thank you for your attention!
 
 # Appendix {.appendix visibility="uncounted"}
 
-## Future Work
+## Appendix : Future Work
 
 - Front-tracking approach for interface representation :
   - Interface represented by a set of markers
@@ -462,7 +462,7 @@ Thank you for your attention!
   - Efficient solvers for large systems
   - Parallel implementation
 
-## Fixed-Point Theoretical Framework
+## Appendix : Fixed-Point Theoretical Framework
 
 - **Fixed-Point Formulation**: $\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})$
 
@@ -475,7 +475,7 @@ Thank you for your attention!
 ---
 
 
-## Front-Tracking Enhancement
+## Appendix : Front-Tracking Enhancement
 
 - Interface represented by a set of markers with positions $\vec{X}_I$
 - Interface update formulated as optimization problem: $\mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}$
@@ -556,6 +556,16 @@ $$\int_{\partial\Omega_{f}} T \mathbf{n} \, dS \approx \sum_{e \in \partial\Omeg
 
 ![](images/deadcell.svg){width=100% fig-align="center"}
 
+---
+
+## Appendix : Local Conservation via Newton Iteration
+
+- **Local Conservation**: Enforce conservation at each iteration
+- **Residual**: $F(\mathbf{s}_\Gamma^{n+1,(k)}) = \rho L v - ⟦k \nabla T \cdot \mathbf{n}⟧$
+
+![](images/energy_error.png){width=100% fig-align="center"}
+
+---
 
 ## References
 
