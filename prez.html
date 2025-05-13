@@ -6,12 +6,12 @@
 <script src="prez_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="prez_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="prez_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-662ae1889177880cb371f83234c0a158.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="prez_files/libs/quarto-html/quarto-syntax-highlighting-4a990d8dcb58f517c7c86712b8f2ac7c.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="prez_files/libs/quarto-contrib/pseudocode-2.4.1/pseudocode.min.js"></script>
 <link href="prez_files/libs/quarto-contrib/pseudocode-2.4.1/pseudocode.min.css" rel="stylesheet"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.30">
+  <meta name="generator" content="quarto-1.7.31">
 
-  <meta name="dcterms.date" content="2025-05-06">
+  <meta name="dcterms.date" content="2025-05-13">
   <title>Numerical Modeling of Heat &amp; Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -181,7 +181,7 @@
     </div>
 </div>
 
-  <p class="date">May 6, 2025</p>
+  <p class="date">May 13, 2025</p>
 </section>
 <section>
 <section id="introduction" class="title-slide slide level1 center">
@@ -200,7 +200,7 @@
 <section id="stefan-type-problems" class="slide level2">
 <h2>Stefan-type Problems</h2>
 <ul>
-<li>Classical phase change problems where a moving boundary separates phases</li>
+<li>Classical phase change problems where a moving boundary separates phases <span class="citation" data-cites="Stefan1891">(see <a href="#/references" role="doc-biblioref" onclick="">Stefan 1891</a>)</span></li>
 <li>Interface position <span class="math inline">\(s(t)\)</span> depends on heat fluxes <span class="math inline">\(k_p \nabla T_p\)</span> <span class="math display">\[
 \begin{aligned}
 &amp;\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
@@ -441,7 +441,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Traditional VOF Approach:</strong></p>
+<p><strong>Traditional VOF Approach:</strong> <span class="citation" data-cites="Weymouth2010">(see <a href="#/references" role="doc-biblioref" onclick="">Weymouth and Yue 2010</a>)</span></p>
 <p><span class="math display">\[
 \frac{\partial c}{\partial t} + \mathbf{u} \cdot \nabla c = 0
 \]</span></p>
@@ -459,7 +459,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </figure>
 </div>
 </div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Our Iterative Method:</strong></p>
+<p><strong>Our Iterative Method:</strong> [paper in preparation]</p>
 <p><span class="math display">\[
 \rho L \frac{\partial s}{\partial t} - ⟦k \nabla T \cdot\mathbf{n}⟧ = 0 \leftrightarrow F(s,T) = 0
 \]</span></p>
@@ -472,7 +472,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </ul>
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/rootfindingnewton.jpg" style="width:55.0%"></p>
+<p><img data-src="images/rootfindingnewton.jpg" style="width:45.0%"></p>
 <figcaption>Newton-Based Schematic</figcaption>
 </figure>
 </div>
@@ -504,7 +504,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </section>
 <section id="newton-iteration-for-interface-update-1" class="slide level2">
 <h2>Newton Iteration for Interface update</h2>
-<div class="pseudocode-container quarto-float" data-caption-prefix="Algorithm" data-line-number="true" data-indent-size="1.2em" data-comment-delimiter="//" data-no-end="false" data-pseudocode-number="1" data-line-number-punc=":">
+<div class="pseudocode-container quarto-float" data-line-number="true" data-no-end="false" data-pseudocode-number="1" data-line-number-punc=":" data-comment-delimiter="//" data-caption-prefix="Algorithm" data-indent-size="1.2em">
 <div class="pseudocode">
 \begin{algorithm} \caption{\large Newton Iteration for Interface Position}\begin{algorithmic} \State $k \gets 0$ \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \Delta t \dot{s}^n$ \Repeat \State Solve: $\partial_t T_p^k - \alpha_p \Delta T_p^k = 0$ in $\Omega_p^k(t)$ \State Compute mismatch: $r = F(s^{n+1,k},T^{n+1,k}) = \rho L \dot{s} - [[\nabla T^{n+1,k}\cdot n]]$ \If{$|r| &lt; \epsilon$} \State Converged \Else \State Update: $s^{n+1,k+1} = s^{n+1,k} - (\partial_s F(s^{n+1,k}, T^{n+1,k}))^{-1} r$ \State $k \gets k+1$ \EndIf \Until{converged} \end{algorithmic} \end{algorithm}
 </div>
@@ -558,6 +558,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <img data-src="images/residual_withguess.png" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">Residuals (log10)</p></section>
 <section id="mullins-sekerka-instability-test" class="slide level2">
 <h2>Mullins-Sekerka Instability Test</h2>
+<p><span class="citation" data-cites="Mullins1964">(see <a href="#/references" role="doc-biblioref" onclick="">Mullins 1964</a>)</span></p>
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
@@ -649,8 +650,8 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 <section id="appendix-fixed-point-theoretical-framework" class="slide level2" data-visibility="uncounted">
 <h2>Appendix : Fixed-Point Theoretical Framework</h2>
 <ul>
-<li><p><strong>Fixed-Point Formulation</strong>: <span class="math inline">\(\mathbf{x}_\Gamma^{n+1,(k+1)} = f(\mathbf{x}_\Gamma^{n+1,(k)})\)</span></p></li>
-<li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{x}_\Gamma^{n+1}\)</span>.</p></li>
+<li><p><strong>Fixed-Point Formulation</strong>: <span class="math inline">\(\mathbf{s}_\Gamma^{n+1,(k+1)} = f(\mathbf{s}_\Gamma^{n+1,(k)})\)</span></p></li>
+<li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{s}_\Gamma^{n+1}\)</span>.</p></li>
 <li><p><strong>Contraction Property</strong>: <span class="math inline">\(\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\)</span></p></li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
@@ -680,6 +681,71 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div>
 </div>
 </div>
+</section>
+<section id="appendix-navier-stokes-with-energy-coupling" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Navier-Stokes with Energy Coupling</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Governing Equations:</strong> <span class="math display">\[
+\small
+\begin{aligned}
+\rho_i\left(\frac{\partial \mathbf{u}_i}{\partial t} + \mathbf{u}_i \cdot \nabla \mathbf{u}_i\right) &amp;= -\nabla p_i + \nabla \cdot (2\mu_i\mathbf{D}_i) \\
+\nabla \cdot \mathbf{u}_i &amp;= 0 \\
+\frac{\partial T_i}{\partial t} + \mathbf{u}_i \cdot \nabla T_i &amp;= \nabla \cdot (k_i \nabla T_i)
+\end{aligned}
+\]</span></p>
+</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>Interface Conditions:</strong> <span class="math display">\[
+\begin{aligned}
+\small
+⟦\mathbf{u}⟧ &amp;= \mathbf{0} \\
+⟦p - 2\mu\mathbf{D} \cdot \mathbf{n}⟧ &amp;= \sigma \kappa \mathbf{n} \\
+⟦T⟧ &amp;= 0 \\
+⟦k \nabla T \cdot \mathbf{n}⟧ &amp;= \rho L \mathbf{v} \cdot \mathbf{n}
+\end{aligned}
+\]</span></p>
+</div></div>
+</div>
+<p><strong>Discretized System Structure:</strong> <span class="math display">\[
+\tiny
+\begin{bmatrix}
+\mathbf{A}_{u1} &amp; \mathbf{0} &amp; \mathbf{B}_{u1} &amp; \mathbf{0} &amp; \mathbf{G}_1 &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0}\\
+\mathbf{0} &amp; \mathbf{A}_{u2} &amp; \mathbf{0} &amp; \mathbf{B}_{u2} &amp; \mathbf{0} &amp; \mathbf{G}_2 &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0}\\
+\mathbf{M}_{u1} &amp; \mathbf{0} &amp; \mathbf{M}_{\Gamma1} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0}\\
+\mathbf{0} &amp; \mathbf{M}_{u2} &amp; \mathbf{0} &amp; \mathbf{M}_{\Gamma2} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0}\\
+\mathbf{0} &amp; \mathbf{0} &amp; \mathbf{I} &amp; -\mathbf{I} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0}\\
+\mathbf{D}_1 &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0}\\
+\mathbf{0} &amp; \mathbf{D}_2 &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0}\\
+\mathbf{C}_{u1T} &amp; \mathbf{0} &amp; \mathbf{C}_{v1T} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{A}_{T1} &amp; \mathbf{B}_{T1} &amp; \mathbf{0}\\
+\mathbf{0} &amp; \mathbf{C}_{u2T} &amp; \mathbf{0} &amp; \mathbf{C}_{v2T} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{A}_{T2}\\
+\mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{0} &amp; \mathbf{I} &amp; \mathbf{0} &amp; -\mathbf{I}
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{u}_1^{n+1} \\
+\mathbf{u}_2^{n+1} \\
+\mathbf{u}_1^{\Gamma,n+1} \\
+\mathbf{u}_2^{\Gamma,n+1} \\
+p_1^{n+1} \\
+p_2^{n+1} \\
+T_1^{n+1} \\
+T_1^{\Gamma,n+1} \\
+T_2^{n+1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\mathbf{f}_{u1} \\
+\mathbf{f}_{u2} \\
+\mathbf{0} \\
+\mathbf{0} \\
+\mathbf{0} \\
+0 \\
+0 \\
+f_{T1} \\
+f_{T2} \\
+0
+\end{bmatrix}
+\]</span></p>
 </section>
 <section id="appendix-gradient-calculation-at-the-interface" class="slide level2" data-visibility="uncounted">
 <h2>Appendix : Gradient Calculation at the interface</h2>
