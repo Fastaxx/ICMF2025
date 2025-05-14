@@ -6,10 +6,10 @@ title-slide-attributes:
   data-background-size: 50%
   data-background-position: 50% 90%
 authors: 
-  <u>L. Libat</u>, 
-  E. Chénier, 
-  C. Selçuk,
-  V. Le Chenadec 
+  <u>Louis Libat</u>, 
+  Eric Chénier, 
+  Can Selçuk,
+  Vincent Le Chenadec 
 date: today
 date-format: long
 institute: "Multiscale Modeling and Simulation Laboratory, CNRS MSME UMR 8208, Gustave Eiffel University"
@@ -68,7 +68,7 @@ format:
 ## Stefan-type Problems
 
 - Classical phase change problems where a moving boundary separates phases [see @Stefan1891]
-- Interface position $s(t)$ depends on heat fluxes $k_p \nabla T_p$
+- Interface position $s(t)$ depends on heat fluxes $k_p \nabla T_p$ and vice versa
 $$
 \begin{aligned}
 &\text{Find $T_s$, $T_l$ and interface position $s(t)$ such that:}\\
@@ -144,7 +144,7 @@ Integrating over control volume and integrating in time:
 
 $$
 \small
-\int_{t^n}^{t^{n+1}} \int_{\Omega_p} \frac{\partial T_p}{\partial t} \, dV dt = \int_{t^n}^{t^{n+1}} \left[ \underbrace{\int_{\partial\Omega_p \setminus \Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Regular Flux}} + \underbrace{\int_{\Gamma} k_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Interface Flux}} + \int_{\Omega_p} S_p \, dV \right] dt
+\int_{t^n}^{t^{n+1}} \int_{\Omega_p} \frac{\partial T_p}{\partial t} \, dV dt = \int_{t^n}^{t^{n+1}} \left[ \underbrace{\int_{\partial\Omega_p \setminus \Gamma} \alpha_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Regular Flux}} + \underbrace{\int_{\Gamma} \alpha_p \nabla T_p \cdot \mathbf{n}_p \, dS}_{\text{Interface Flux}} + \int_{\Omega_p} S_p \, dV \right] dt
 $$
 
 ---
@@ -153,7 +153,7 @@ $$
 
 For each phase (solid, liquid), the discretization leads to:
 $$
-V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} k_p A_f \nabla_f(\tilde{T}_p) \cdot \mathbf{n_f}+ F_p^{\Gamma} + S_p V_p \right]
+V_p(T_p^{n+1} - T_p^n) = \Delta t \left[ \sum_{f \in \text{reg}} \alpha_p A_f \nabla_f(\tilde{T}_p) \cdot \mathbf{n_f}+ F_p^{\Gamma} + S_p V_p \right]
 $$
 
 Where:
@@ -212,13 +212,60 @@ $$
 
 ---
 
+## System Invertibility Analysis
+
+::: {layout-ncol=2}
+::: {.column}
+**Block System Reformulation**
+
+$$
+\begin{bmatrix}
+A & B \\
+C & D
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{T}_{\rm bulk} \\
+\mathbf{T}_\Gamma
+\end{bmatrix}
+=
+\begin{bmatrix}
+\mathbf{R}_{\rm bulk} \\
+\mathbf{R}_\Gamma
+\end{bmatrix}
+$$
+
+- $A$: Block-diagonal, SPD (for $\alpha_p, \Delta t > 0$)
+- Invertibility via Schur complement $S = D - CA^{-1}B$
+:::
+
+::: {.column}
+**Schur Complement Structure**
+
+$$
+\tiny
+S = 
+\begin{bmatrix}
+-[(M_{\rm bulk}^s)^{-1}M_{\rm int}^s] + [(M_{\rm bulk}^l)^{-1}M_{\rm int}^l] & 0 \\
+F_{\rm int}^s - F_{\rm bulk}^s(M_{\rm bulk}^s)^{-1}M_{\rm int}^s & F_{\rm int}^l - F_{\rm bulk}^l(M_{\rm bulk}^l)^{-1}M_{\rm int}^l
+\end{bmatrix}
+$$
+
+- Lower-triangular form with nonzero diagonal blocks
+- Interface-flux blocks SPD for $\alpha_p > 0$
+- System invertible for physically valid parameters
+- Works for all cut-cell configurations
+:::
+:::
+
+---
+
 ## Validation Case: 2D Two-Phase Heat Equation
 
 ::: {layout-ncol=2}
 ::: {.column}
 $$
 \begin{aligned}
-\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= 0 \quad \text{in } \Omega_p \\
+\rho_p c_p\frac{\partial T_p}{\partial t} - \nabla \cdot (k_p \nabla T_p) &= 0 \quad \text{in } \Omega_p \\
 T_s - \beta_l T_l &= 0 \quad \text{on } \Gamma, \\
 k_s \nabla T_s \cdot \mathbf{n} - k_l \nabla T_l \cdot \mathbf{n} &= 0 \quad \text{on } \Gamma, \\
 \end{aligned}
@@ -245,7 +292,7 @@ $$
 ## Validation: 2D Two-Phase Heat Equation
 
 ::: {#fig-heat3 layout-ncol=1}
-![Temperature field](images/heat_2d_2ph_henry_end.png){width=80%}
+![Temperature field & Nusselt number](images/heat_2d_2ph_henry_end3.png){width=80%}
 
 Sharp interface with no spurious oscillations
 :::
@@ -258,6 +305,16 @@ Sharp interface with no spurious oscillations
 ![Convergence Results](images/two_phase_conv.png){width=60%}
 
 Second-order convergence in $L^2$ norm for regular cells, superlinear for cut cells
+:::
+
+---
+
+## Validation: 2D Two-Phase Heat Equation
+
+::: {#fig-heat2 layout-ncol=1}
+![Various homothetic jumps](images/henry_profile_comp.png){width=70%}
+
+Good agreement with stiff homothetic jumps
 :::
 
 # Cut Cell Method for moving interfaces
@@ -285,6 +342,7 @@ $$
 
 - Same discretization as before 
 - Additional term for moving interface
+- Geometric Conservation Law (**GCL**) : $V^{n+1}-V^{n} = \int_{\partial \Omega(t)} \bigl(\mathbf{w}\cdot\mathbf{n}\bigr)  dS$  satisfied
 
 ---
 
@@ -343,6 +401,30 @@ $$
 - Each iteration requires solving temperature fields on updated domains
 :::
 :::
+
+---
+
+## Newton Iteration for Interface update
+
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}[H]
+  \caption{\large Newton Iteration for Interface Position}
+    \begin{algorithmic}[1]
+      \State $k \gets 0$
+      \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \Delta t \dot{s}^n$
+    \end{algorithmic}
+\end{algorithm}
+```
+
+Classical Front Tracking : Advect Markers
 
 ---
 
@@ -439,7 +521,7 @@ $$
   - Properly handles discrete events (fresh/dead cells)
   - Maintains conservation
 
-- **Implicit interface representation**
+- **Implicit Coupling for interface update**
   - No velocity extension, no reinitialization
   - Newton iteration for interface update
   - Coupling between interface update and temperature field
@@ -622,21 +704,26 @@ $$\int_{\partial\Omega_{f}} T \mathbf{n} \, dS \approx \sum_{e \in \partial\Omeg
 
 ## Appendix : Fresh/Dead Cells
 
-- **Fresh Cells**: Empty cells at $t^n$ but partially filled at $t^{n+1}$
-- **Dead Cells**: Partially filled cells at $t^n$ but empty at $t^{n+1}$
-
 - **Handling**: 
-  - Still solve for temperature in those cells
-  - Find the temperature to ensure conservation
+  - Still solve for temperature in those cells to maintain conservation
+  - Linear constraint to ensure right fluxes across faces
 
 ![](images/deadcell.svg){width=100% fig-align="center"}
 
+
+$$
+\begin{aligned}
+(V^{n+1} T^{n+1} - V^n T^n) &- (V^{n+1} - V^{n}) T^{\Gamma} \\
+& = \underbrace{\sum_{f \in \text{reg}} k \mathcal{A_f} \mathcal{\nabla_f(\tilde{T})}}_{\substack{\text{space-time flux}\\\text{through regular faces}}} + \underbrace{\mathcal{F_{\Gamma}}}_{\substack{\text{space-time flux across}\\\text{moving interface}}} 
++ \underbrace{S_i \mathcal{V_i}}_{\text{source term}} 
+\end{aligned} 
+$$
 ---
 
 ## Appendix : Local Conservation via Newton Iteration
 
 - **Local Conservation**: Enforce conservation at each iteration
-- **Residual**: $F(\mathbf{s}_\Gamma^{n+1,(k)}) = \rho L v - ⟦k \nabla T \cdot \mathbf{n}⟧$
+- **Energy Error**: Measure of conservation error
 
 ![](images/energy_error.png){width=100% fig-align="center"}
 
