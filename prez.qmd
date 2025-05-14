@@ -291,11 +291,32 @@ $$
 
 ## Validation: 2D Two-Phase Heat Equation
 
-::: {#fig-heat3 layout-ncol=1}
-![Temperature field & Nusselt number](images/heat_2d_2ph_henry_end3.png){width=80%}
+::: {layout-ncol=2}
+::: {.column}
+![Temperature Field](images/heat_2d_2ph_henry_end.png){width=100%}
 
-Sharp interface with no spurious oscillations
 :::
+
+::: {.column}
+![Nusselt Number](images/Heat_Transfer_Coeff.png){width=80%}
+:::
+:::
+
+---
+
+## Validation: 2D Two-Phase Heat Equation
+
+::: {layout-ncol=2}
+::: {.column}
+![Temperature Field](images/heat_2d_2ph_henry_end.png){width=100%}
+
+:::
+
+::: {.column}
+![Nusselt Number](images/Heat_Transfer_Coeff_zoom.png){width=80%}
+:::
+:::
+
 
 ---
 
@@ -323,7 +344,7 @@ Good agreement with stiff homothetic jumps
 
 - Combine time with spatial domain (extrude cells across $\Delta t$)
 - Discrete events (**fresh/dead cells**) carefully handled
-- Extension to 2D (3D ST) and 3D (4D ST) possible
+- Extension to 2D (3D ST - done) and 3D (4D ST - in progress) possible
 
 ![From 1D Space to 2D Space-Time](images/space_time.gif){width="80%" fig-align="center"}
 
@@ -526,6 +547,35 @@ Classical Front Tracking : Advect Markers
   - Newton iteration for interface update
   - Coupling between interface update and temperature field
 
+---
+
+## Ongoing Work
+
+::: {layout-ncol=2}
+::: {.column width=50%}
+**Front-Tracking Enhancement**
+
+- Non-linear least squares formulation:
+  $$\small \mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}$$
+- Levenberg-Marquardt solution
+
+![](images/star_evolution.gif){width=60%}
+:::
+
+::: {.column width=50%}
+**Two-Phase Navier-Stokes Extension** [@Quirós2024]
+
+- Full momentum-energy coupling:
+  $$\small \rho\left(\frac{\partial \mathbf{u}}{\partial t} + \mathbf{u}\cdot\nabla\mathbf{u}\right) = -\nabla p + \mu\nabla^2\mathbf{u}$$
+  $$\small \frac{\partial T}{\partial t} + \mathbf{u}\cdot\nabla T = \alpha \nabla^2 T$$
+
+- Interface jump conditions:
+  $$\small ⟦\mathbf{u}⟧ = \mathbf{0}, ⟦p - \mu\nabla\mathbf{u}⟧ = \sigma\kappa\mathbf{n}$$
+  $$\small ⟦T⟧ = 0, ⟦k\nabla T \cdot \mathbf{n}⟧ = \rho L \mathbf{v}\cdot\mathbf{n}$$
+
+- Fully-coupled solver [see @ElOuafa2023]
+:::
+:::
 
 # Questions ?
 Thank you for your attention!
@@ -546,18 +596,7 @@ Thank you for your attention!
   - Efficient solvers for large systems
   - Parallel implementation
 
-## Appendix : Fixed-Point Theoretical Framework
-
-- **Fixed-Point Formulation**: $\mathbf{s}_\Gamma^{n+1,(k+1)} = f(\mathbf{s}_\Gamma^{n+1,(k)})$
-
-- **Banach Fixed-Point Theorem**: Guarantees convergence if $f$ is contractive. Existence (and uniqueness) of fixed point $\mathbf{s}_\Gamma^{n+1}$.
-
-- **Contraction Property**: $\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L < 1$
-
-![](images/stefan_fixed_point_analysis_step2.png){height=700 fig-align="center"}
-
 ---
-
 
 ## Appendix : Front-Tracking Enhancement
 
@@ -647,8 +686,19 @@ f_{T2} \\
 \end{bmatrix}
 $$
 
-
 --- 
+
+## Appendix : Fixed-Point Theoretical Framework
+
+- **Fixed-Point Formulation**: $\mathbf{s}_\Gamma^{n+1,(k+1)} = f(\mathbf{s}_\Gamma^{n+1,(k)})$
+
+- **Banach Fixed-Point Theorem**: Guarantees convergence if $f$ is contractive. Existence (and uniqueness) of fixed point $\mathbf{s}_\Gamma^{n+1}$.
+
+- **Contraction Property**: $\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L < 1$
+
+![](images/stefan_fixed_point_analysis_step2.png){height=700 fig-align="center"}
+
+---
 
 ## Appendix : Gradient Calculation at the interface
 
