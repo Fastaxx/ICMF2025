@@ -411,27 +411,47 @@ T_l(r,t) &amp;= \frac{2 T_{l,0} k_s \sqrt{k_l} \beta_l}{\pi} \int_0^{\infty} \ex
 </section>
 <section id="validation-2d-two-phase-heat-equation" class="slide level2">
 <h2>Validation: 2D Two-Phase Heat Equation</h2>
-<div id="fig-heat3" class="quarto-layout-panel">
-<figure class="quarto-float quarto-float-fig">
-<div aria-describedby="fig-heat3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
-<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: flex-start;">
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/heat_2d_2ph_henry_end3.png" style="width:80.0%"></p>
-<figcaption>Temperature field &amp; Nusselt number</figcaption>
+<p><img data-src="images/heat_2d_2ph_henry_end.png" style="width:100.0%"></p>
+<figcaption>Temperature Field</figcaption>
 </figure>
 </div>
-</div>
-</div>
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-heat3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Sharp interface with no spurious oscillations
-</figcaption>
+</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/Heat_Transfer_Coeff.png" style="width:80.0%"></p>
+<figcaption>Nusselt Number</figcaption>
 </figure>
+</div>
+</div></div>
 </div>
 </section>
 <section id="validation-2d-two-phase-heat-equation-1" class="slide level2">
+<h2>Validation: 2D Two-Phase Heat Equation</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/heat_2d_2ph_henry_end.png" style="width:100.0%"></p>
+<figcaption>Temperature Field</figcaption>
+</figure>
+</div>
+</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/Heat_Transfer_Coeff_zoom.png" style="width:80.0%"></p>
+<figcaption>Nusselt Number</figcaption>
+</figure>
+</div>
+</div></div>
+</div>
+</section>
+<section id="validation-2d-two-phase-heat-equation-2" class="slide level2">
 <h2>Validation: 2D Two-Phase Heat Equation</h2>
 <div id="fig-heat2" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig">
@@ -448,12 +468,12 @@ Figure&nbsp;1: Sharp interface with no spurious oscillations
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-heat2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</span> norm for regular cells, superlinear for cut cells
+Figure&nbsp;1: Second-order convergence in <span class="math inline">\(L^2\)</span> norm for regular cells, superlinear for cut cells
 </figcaption>
 </figure>
 </div>
 </section>
-<section id="validation-2d-two-phase-heat-equation-2" class="slide level2">
+<section id="validation-2d-two-phase-heat-equation-3" class="slide level2">
 <h2>Validation: 2D Two-Phase Heat Equation</h2>
 <div id="fig-heat2" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig">
@@ -470,7 +490,7 @@ Figure&nbsp;2: Second-order convergence in <span class="math inline">\(L^2\)</sp
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-heat2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Good agreement with stiff homothetic jumps
+Figure&nbsp;2: Good agreement with stiff homothetic jumps
 </figcaption>
 </figure>
 </div>
@@ -485,7 +505,7 @@ Figure&nbsp;3: Good agreement with stiff homothetic jumps
 <ul>
 <li>Combine time with spatial domain (extrude cells across <span class="math inline">\(\Delta t\)</span>)</li>
 <li>Discrete events (<strong>fresh/dead cells</strong>) carefully handled</li>
-<li>Extension to 2D (3D ST) and 3D (4D ST) possible</li>
+<li>Extension to 2D (3D ST - done) and 3D (4D ST - in progress) possible</li>
 </ul>
 
 <img data-src="images/space_time.gif" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">From 1D Space to 2D Space-Time</p></section>
@@ -571,7 +591,7 @@ Figure&nbsp;3: Good agreement with stiff homothetic jumps
 </section>
 <section id="newton-iteration-for-interface-update-1" class="slide level2">
 <h2>Newton Iteration for Interface update</h2>
-<div class="pseudocode-container quarto-float" data-line-number-punc=":" data-indent-size="1.2em" data-pseudocode-number="1" data-line-number="true" data-comment-delimiter="//" data-no-end="false" data-caption-prefix="Algorithm">
+<div class="pseudocode-container quarto-float" data-pseudocode-number="1" data-indent-size="1.2em" data-line-number="true" data-no-end="false" data-line-number-punc=":" data-comment-delimiter="//" data-caption-prefix="Algorithm">
 <div class="pseudocode">
 \begin{algorithm} \caption{\large Newton Iteration for Interface Position}\begin{algorithmic} \State $k \gets 0$ \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \Delta t \dot{s}^n$ \end{algorithmic} \end{algorithm}
 </div>
@@ -580,7 +600,7 @@ Figure&nbsp;3: Good agreement with stiff homothetic jumps
 </section>
 <section id="newton-iteration-for-interface-update-2" class="slide level2">
 <h2>Newton Iteration for Interface update</h2>
-<div class="pseudocode-container quarto-float" data-line-number-punc=":" data-indent-size="1.2em" data-pseudocode-number="1" data-line-number="true" data-comment-delimiter="//" data-no-end="false" data-caption-prefix="Algorithm">
+<div class="pseudocode-container quarto-float" data-pseudocode-number="1" data-indent-size="1.2em" data-line-number="true" data-no-end="false" data-line-number-punc=":" data-comment-delimiter="//" data-caption-prefix="Algorithm">
 <div class="pseudocode">
 \begin{algorithm} \caption{\large Newton Iteration for Interface Position}\begin{algorithmic} \State $k \gets 0$ \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \Delta t \dot{s}^n$ \Repeat \State Solve: $\partial_t T_p^k - \alpha_p \Delta T_p^k = 0$ in $\Omega_p^k(t)$ \State Compute mismatch: $r = F(s^{n+1,k},T^{n+1,k}) = \rho L \dot{s} - [[\nabla T^{n+1,k}\cdot n]]$ \If{$|r| &lt; \epsilon$} \State Converged \Else \State Update: $s^{n+1,k+1} = s^{n+1,k} - (\partial_s F(s^{n+1,k}, T^{n+1,k}))^{-1} r$ \State $k \gets k+1$ \EndIf \Until{converged} \end{algorithmic} \end{algorithm}
 </div>
@@ -690,6 +710,27 @@ Figure&nbsp;3: Good agreement with stiff homothetic jumps
 <li>Coupling between interface update and temperature field</li>
 </ul></li>
 </ul>
+</section>
+<section id="ongoing-work" class="slide level2">
+<h2>Ongoing Work</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="column quarto-layout-cell" style="flex-basis: 54.5%;justify-content: center;">
+<p><strong>Front-Tracking Enhancement</strong></p>
+<ul>
+<li>Non-linear least squares formulation: <span class="math display">\[\small \mathbf{X}^{n+1} = \text{argmin} \left\{ \sum_i \left| F_i \right|^2 \right\}\]</span></li>
+<li>Levenberg-Marquardt solution</li>
+</ul>
+<p><img data-src="images/star_evolution.gif"></p>
+</div><div class="column quarto-layout-cell" style="flex-basis: 45.5%;justify-content: flex-start;">
+<p><strong>Two-Phase Navier-Stokes Extension</strong> <span class="citation" data-cites="Quirós2024">(<a href="#/references" role="doc-biblioref" onclick="">Quirós Rodríguez et al. 2024</a>)</span></p>
+<ul>
+<li><p>Full momentum-energy coupling: <span class="math display">\[\small \rho\left(\frac{\partial \mathbf{u}}{\partial t} + \mathbf{u}\cdot\nabla\mathbf{u}\right) = -\nabla p + \mu\nabla^2\mathbf{u}\]</span> <span class="math display">\[\small \frac{\partial T}{\partial t} + \mathbf{u}\cdot\nabla T = \alpha \nabla^2 T\]</span></p></li>
+<li><p>Interface jump conditions: <span class="math display">\[\small ⟦\mathbf{u}⟧ = \mathbf{0}, ⟦p - \mu\nabla\mathbf{u}⟧ = \sigma\kappa\mathbf{n}\]</span> <span class="math display">\[\small ⟦T⟧ = 0, ⟦k\nabla T \cdot \mathbf{n}⟧ = \rho L \mathbf{v}\cdot\mathbf{n}\]</span></p></li>
+<li><p>Fully-coupled solver <span class="citation" data-cites="ElOuafa2023">(see <a href="#/references" role="doc-biblioref" onclick="">El Ouafa et al. 2023</a>)</span></p></li>
+</ul>
+</div></div>
+</div>
 </section></section>
 <section id="questions" class="title-slide slide level1 center">
 <h1>Questions ?</h1>
@@ -722,19 +763,6 @@ Figure&nbsp;3: Good agreement with stiff homothetic jumps
 <li>Parallel implementation</li>
 </ul></li>
 </ul>
-</section>
-<section id="appendix-fixed-point-theoretical-framework" class="slide level2" data-visibility="uncounted">
-<h2>Appendix : Fixed-Point Theoretical Framework</h2>
-<ul>
-<li><p><strong>Fixed-Point Formulation</strong>: <span class="math inline">\(\mathbf{s}_\Gamma^{n+1,(k+1)} = f(\mathbf{s}_\Gamma^{n+1,(k)})\)</span></p></li>
-<li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{s}_\Gamma^{n+1}\)</span>.</p></li>
-<li><p><strong>Contraction Property</strong>: <span class="math inline">\(\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\)</span></p></li>
-</ul>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="images/stefan_fixed_point_analysis_step2.png" class="quarto-figure quarto-figure-center" height="700"></p>
-</figure>
-</div>
 </section>
 <section id="appendix-front-tracking-enhancement" class="slide level2" data-visibility="uncounted">
 <h2>Appendix : Front-Tracking Enhancement</h2>
@@ -822,6 +850,19 @@ f_{T2} \\
 0
 \end{bmatrix}
 \]</span></p>
+</section>
+<section id="appendix-fixed-point-theoretical-framework" class="slide level2" data-visibility="uncounted">
+<h2>Appendix : Fixed-Point Theoretical Framework</h2>
+<ul>
+<li><p><strong>Fixed-Point Formulation</strong>: <span class="math inline">\(\mathbf{s}_\Gamma^{n+1,(k+1)} = f(\mathbf{s}_\Gamma^{n+1,(k)})\)</span></p></li>
+<li><p><strong>Banach Fixed-Point Theorem</strong>: Guarantees convergence if <span class="math inline">\(f\)</span> is contractive. Existence (and uniqueness) of fixed point <span class="math inline">\(\mathbf{s}_\Gamma^{n+1}\)</span>.</p></li>
+<li><p><strong>Contraction Property</strong>: <span class="math inline">\(\|f(\mathbf{x}_1) - f(\mathbf{x}_2)\| \leq L\|\mathbf{x}_1 - \mathbf{x}_2\|,\quad L &lt; 1\)</span></p></li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/stefan_fixed_point_analysis_step2.png" class="quarto-figure quarto-figure-center" height="700"></p>
+</figure>
+</div>
 </section>
 <section id="appendix-gradient-calculation-at-the-interface" class="slide level2" data-visibility="uncounted">
 <h2>Appendix : Gradient Calculation at the interface</h2>
@@ -922,6 +963,9 @@ f_{T2} \\
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-Chen1997" class="csl-entry" role="listitem">
 Chen, S., Barry Merriman, S. Osher, and Peter Smereka. 1997. <span>“A Simple Level Set Method for Solving Stefan Problems.”</span> <em>Journal of Computational Physics</em> 135: 8–29. <a href="https://api.semanticscholar.org/CorpusID:15053906">https://api.semanticscholar.org/CorpusID:15053906</a>.
+</div>
+<div id="ref-ElOuafa2023" class="csl-entry" role="listitem">
+El Ouafa, Simon, Stéphane Vincent, Vincent Le Chenadec, and Benoît Trouette. 2023. <span>“Fully-Coupled Parallel Solver for the Simulation of Two-Phase Incompressible Flows.”</span> <em>Computers &amp; Fluids</em> 265: 105995. https://doi.org/<a href="https://doi.org/10.1016/j.compfluid.2023.105995">https://doi.org/10.1016/j.compfluid.2023.105995</a>.
 </div>
 <div id="ref-Mullins1964" class="csl-entry" role="listitem">
 Mullins, W. W. 1964. <span>“Stability of a Planar Interface During Solidification of a Dilute Binary Alloy.”</span> In. <a href="https://api.semanticscholar.org/CorpusID:100344661">https://api.semanticscholar.org/CorpusID:100344661</a>.
