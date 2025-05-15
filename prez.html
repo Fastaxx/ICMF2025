@@ -11,7 +11,7 @@
 <link href="prez_files/libs/quarto-contrib/pseudocode-2.4.1/pseudocode.min.css" rel="stylesheet"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.31">
 
-  <meta name="dcterms.date" content="2025-05-14">
+  <meta name="dcterms.date" content="2025-05-15">
   <title>Numerical Modeling of Heat &amp; Mass Transfers in Stefan-type Flows Using a Sharp Interface Two-Fluid Formulation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -181,7 +181,7 @@
     </div>
 </div>
 
-  <p class="date">May 14, 2025</p>
+  <p class="date">May 15, 2025</p>
 </section>
 <section>
 <section id="introduction" class="title-slide slide level1 center">
@@ -338,52 +338,9 @@ A_\Gamma h
 <li>Implicit time-stepping</li>
 <li>Coupling between bulk and interface terms</li>
 <li>Enforce boundary conditions directly in the system</li>
+<li>System is invertible: Schur complement analysis shows SPD for physical parameters</li>
 <li>⚠️ <strong>No need for ghost cells or extrapolation</strong></li>
 </ul>
-</section>
-<section id="system-invertibility-analysis" class="slide level2">
-<h2>System Invertibility Analysis</h2>
-<div class="quarto-layout-panel" data-layout-ncol="2">
-<div class="quarto-layout-row">
-<div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Block System Reformulation</strong></p>
-<p><span class="math display">\[
-\begin{bmatrix}
-A &amp; B \\
-C &amp; D
-\end{bmatrix}
-\begin{bmatrix}
-\mathbf{T}_{\rm bulk} \\
-\mathbf{T}_\Gamma
-\end{bmatrix}
-=
-\begin{bmatrix}
-\mathbf{R}_{\rm bulk} \\
-\mathbf{R}_\Gamma
-\end{bmatrix}
-\]</span></p>
-<ul>
-<li><span class="math inline">\(A\)</span>: Block-diagonal, SPD (for <span class="math inline">\(\alpha_p, \Delta t &gt; 0\)</span>)</li>
-<li>Invertibility via Schur complement <span class="math inline">\(S = D - CA^{-1}B\)</span></li>
-</ul>
-</div><div class="column quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
-<p><strong>Schur Complement Structure</strong></p>
-<p><span class="math display">\[
-\tiny
-S =
-\begin{bmatrix}
--[(M_{\rm bulk}^s)^{-1}M_{\rm int}^s] + [(M_{\rm bulk}^l)^{-1}M_{\rm int}^l] &amp; 0 \\
-F_{\rm int}^s - F_{\rm bulk}^s(M_{\rm bulk}^s)^{-1}M_{\rm int}^s &amp; F_{\rm int}^l - F_{\rm bulk}^l(M_{\rm bulk}^l)^{-1}M_{\rm int}^l
-\end{bmatrix}
-\]</span></p>
-<ul>
-<li>Lower-triangular form with nonzero diagonal blocks</li>
-<li>Interface-flux blocks SPD for <span class="math inline">\(\alpha_p &gt; 0\)</span></li>
-<li>System invertible for physically valid parameters</li>
-<li>Works for all cut-cell configurations</li>
-</ul>
-</div></div>
-</div>
 </section>
 <section id="validation-case-2d-two-phase-heat-equation" class="slide level2">
 <h2>Validation Case: 2D Two-Phase Heat Equation</h2>
@@ -591,7 +548,7 @@ Figure&nbsp;2: Good agreement with stiff homothetic jumps
 </section>
 <section id="newton-iteration-for-interface-update-1" class="slide level2">
 <h2>Newton Iteration for Interface update</h2>
-<div class="pseudocode-container quarto-float" data-pseudocode-number="1" data-indent-size="1.2em" data-line-number="true" data-no-end="false" data-line-number-punc=":" data-comment-delimiter="//" data-caption-prefix="Algorithm">
+<div class="pseudocode-container quarto-float" data-line-number-punc=":" data-indent-size="1.2em" data-comment-delimiter="//" data-caption-prefix="Algorithm" data-line-number="true" data-no-end="false" data-pseudocode-number="1">
 <div class="pseudocode">
 \begin{algorithm} \caption{\large Newton Iteration for Interface Position}\begin{algorithmic} \State $k \gets 0$ \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \Delta t \dot{s}^n$ \end{algorithmic} \end{algorithm}
 </div>
@@ -600,7 +557,7 @@ Figure&nbsp;2: Good agreement with stiff homothetic jumps
 </section>
 <section id="newton-iteration-for-interface-update-2" class="slide level2">
 <h2>Newton Iteration for Interface update</h2>
-<div class="pseudocode-container quarto-float" data-pseudocode-number="1" data-indent-size="1.2em" data-line-number="true" data-no-end="false" data-line-number-punc=":" data-comment-delimiter="//" data-caption-prefix="Algorithm">
+<div class="pseudocode-container quarto-float" data-line-number-punc=":" data-indent-size="1.2em" data-comment-delimiter="//" data-caption-prefix="Algorithm" data-line-number="true" data-no-end="false" data-pseudocode-number="1">
 <div class="pseudocode">
 \begin{algorithm} \caption{\large Newton Iteration for Interface Position}\begin{algorithmic} \State $k \gets 0$ \State Initialize: $s^{n+1,k} \gets s^n$ or $s^n + \Delta t \dot{s}^n$ \Repeat \State Solve: $\partial_t T_p^k - \alpha_p \Delta T_p^k = 0$ in $\Omega_p^k(t)$ \State Compute mismatch: $r = F(s^{n+1,k},T^{n+1,k}) = \rho L \dot{s} - [[\nabla T^{n+1,k}\cdot n]]$ \If{$|r| &lt; \epsilon$} \State Converged \Else \State Update: $s^{n+1,k+1} = s^{n+1,k} - (\partial_s F(s^{n+1,k}, T^{n+1,k}))^{-1} r$ \State $k \gets k+1$ \EndIf \Until{converged} \end{algorithmic} \end{algorithm}
 </div>
@@ -650,8 +607,27 @@ Figure&nbsp;2: Good agreement with stiff homothetic jumps
 <li>Fast convergence : 3, 4 iterations sufficient</li>
 <li>Efficient with good initial guess (extrapolation or velocity-based)</li>
 </ul>
-
-<img data-src="images/residual_withguess.png" style="width:80.0%" class="r-stretch quarto-figure-center"><p class="caption">Residuals (log10)</p></section>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/residual_withguess.png" style="width:100.0%"></p>
+<figcaption>Residuals (log10)</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/energy_conservation_error.png" style="width:100.0%"></p>
+<figcaption>Energy Error</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
 <section id="mullins-sekerka-instability-test" class="slide level2">
 <h2>Mullins-Sekerka Instability Test</h2>
 <p><span class="citation" data-cites="Mullins1964">(see <a href="#/references" role="doc-biblioref" onclick="">Mullins 1964</a>)</span></p>
@@ -703,7 +679,7 @@ Figure&nbsp;2: Good agreement with stiff homothetic jumps
 <li>Properly handles discrete events (fresh/dead cells)</li>
 <li>Maintains conservation</li>
 </ul></li>
-<li><strong>Implicit Coupling for interface update</strong>
+<li><strong>Local conservative interface update</strong>
 <ul>
 <li>No velocity extension, no reinitialization</li>
 <li>Newton iteration for interface update</li>
@@ -948,16 +924,8 @@ f_{T2} \\
 &amp; = \underbrace{\sum_{f \in \text{reg}} k \mathcal{A_f} \mathcal{\nabla_f(\tilde{T})}}_{\substack{\text{space-time flux}\\\text{through regular faces}}} + \underbrace{\mathcal{F_{\Gamma}}}_{\substack{\text{space-time flux across}\\\text{moving interface}}}
 + \underbrace{S_i \mathcal{V_i}}_{\text{source term}}
 \end{aligned}
-\]</span> —</p>
+\]</span></p>
 </section>
-<section id="appendix-local-conservation-via-newton-iteration" class="slide level2" data-visibility="uncounted">
-<h2>Appendix : Local Conservation via Newton Iteration</h2>
-<ul>
-<li><strong>Local Conservation</strong>: Enforce conservation at each iteration</li>
-<li><strong>Energy Error</strong>: Measure of conservation error</li>
-</ul>
-
-<img data-src="images/energy_error.png" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
 <section id="references" class="slide level2 smaller scrollable" data-visibility="uncounted">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -995,7 +963,7 @@ Weymouth, Gabriel, and Dick Yue. 2010. <span>“Conservative Volume-of-Fluid Met
 </section>
 <section id="references-1" class="slide level2" data-visibility="uncounted">
 <h2>References</h2>
-<p><span class="citation" data-cites="2025TwoPhase">TwoPhase (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span> <span class="citation" data-cites="Chen1997">Chen et al. (<a href="#/references" role="doc-biblioref" onclick="">1997</a>)</span> <span class="citation" data-cites="Mullins1964">Mullins (<a href="#/references" role="doc-biblioref" onclick="">1964</a>)</span> <span class="citation" data-cites="Polyanin2016">Polyanin and Nazaikinskii (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> <span class="citation" data-cites="Popinet2009">Popinet (<a href="#/references" role="doc-biblioref" onclick="">2009</a>)</span> <span class="citation" data-cites="Remmerswaal2022">Remmerswaal and Veldman (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span> <span class="citation" data-cites="Stefan1891">Stefan (<a href="#/references" role="doc-biblioref" onclick="">1891</a>)</span> <span class="citation" data-cites="Weymouth2010">Weymouth and Yue (<a href="#/references" role="doc-biblioref" onclick="">2010</a>)</span> <span class="citation" data-cites="Quirós2024">Quirós Rodríguez et al. (<a href="#/references" role="doc-biblioref" onclick="">2024</a>)</span></p>
+<p><span class="citation" data-cites="2025TwoPhase">TwoPhase (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span> <span class="citation" data-cites="Chen1997">Chen et al. (<a href="#/references" role="doc-biblioref" onclick="">1997</a>)</span> <span class="citation" data-cites="Mullins1964">Mullins (<a href="#/references" role="doc-biblioref" onclick="">1964</a>)</span> <span class="citation" data-cites="Polyanin2016">Polyanin and Nazaikinskii (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> <span class="citation" data-cites="Popinet2009">Popinet (<a href="#/references" role="doc-biblioref" onclick="">2009</a>)</span> <span class="citation" data-cites="Remmerswaal2022">Remmerswaal and Veldman (<a href="#/references" role="doc-biblioref" onclick="">2022</a>)</span> <span class="citation" data-cites="Stefan1891">Stefan (<a href="#/references" role="doc-biblioref" onclick="">1891</a>)</span> <span class="citation" data-cites="Weymouth2010">Weymouth and Yue (<a href="#/references" role="doc-biblioref" onclick="">2010</a>)</span> <span class="citation" data-cites="Quirós2024">Quirós Rodríguez et al. (<a href="#/references" role="doc-biblioref" onclick="">2024</a>)</span> <span class="citation" data-cites="ElOuafa2023">El Ouafa et al. (<a href="#/references" role="doc-biblioref" onclick="">2023</a>)</span></p>
 
 </section></section>
     </div>
