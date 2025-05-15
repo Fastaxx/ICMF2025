@@ -208,54 +208,8 @@ $$
 - Implicit time-stepping
 - Coupling between bulk and interface terms
 - Enforce boundary conditions directly in the system
+- System is invertible: Schur complement analysis shows SPD for physical parameters
 - ⚠️ **No need for ghost cells or extrapolation**
-
----
-
-## System Invertibility Analysis
-
-::: {layout-ncol=2}
-::: {.column}
-**Block System Reformulation**
-
-$$
-\begin{bmatrix}
-A & B \\
-C & D
-\end{bmatrix}
-\begin{bmatrix}
-\mathbf{T}_{\rm bulk} \\
-\mathbf{T}_\Gamma
-\end{bmatrix}
-=
-\begin{bmatrix}
-\mathbf{R}_{\rm bulk} \\
-\mathbf{R}_\Gamma
-\end{bmatrix}
-$$
-
-- $A$: Block-diagonal, SPD (for $\alpha_p, \Delta t > 0$)
-- Invertibility via Schur complement $S = D - CA^{-1}B$
-:::
-
-::: {.column}
-**Schur Complement Structure**
-
-$$
-\tiny
-S = 
-\begin{bmatrix}
--[(M_{\rm bulk}^s)^{-1}M_{\rm int}^s] + [(M_{\rm bulk}^l)^{-1}M_{\rm int}^l] & 0 \\
-F_{\rm int}^s - F_{\rm bulk}^s(M_{\rm bulk}^s)^{-1}M_{\rm int}^s & F_{\rm int}^l - F_{\rm bulk}^l(M_{\rm bulk}^l)^{-1}M_{\rm int}^l
-\end{bmatrix}
-$$
-
-- Lower-triangular form with nonzero diagonal blocks
-- Interface-flux blocks SPD for $\alpha_p > 0$
-- System invertible for physically valid parameters
-- Works for all cut-cell configurations
-:::
-:::
 
 ---
 
@@ -501,7 +455,11 @@ Classical Front Tracking : Advect Markers
 - Fast convergence : 3, 4 iterations sufficient
 - Efficient with good initial guess (extrapolation or velocity-based)
 
-![Residuals (log10)](images/residual_withguess.png){width=80%}
+::: {layout-ncol=2}
+![Residuals (log10)](images/residual_withguess.png){width=100%}
+
+![Energy Error](images/energy_conservation_error.png){width=100%}
+:::
 
 ---
 
@@ -542,7 +500,7 @@ Classical Front Tracking : Advect Markers
   - Properly handles discrete events (fresh/dead cells)
   - Maintains conservation
 
-- **Implicit Coupling for interface update**
+- **Local conservative interface update**
   - No velocity extension, no reinitialization
   - Newton iteration for interface update
   - Coupling between interface update and temperature field
@@ -768,14 +726,6 @@ $$
 + \underbrace{S_i \mathcal{V_i}}_{\text{source term}} 
 \end{aligned} 
 $$
----
-
-## Appendix : Local Conservation via Newton Iteration
-
-- **Local Conservation**: Enforce conservation at each iteration
-- **Energy Error**: Measure of conservation error
-
-![](images/energy_error.png){width=100% fig-align="center"}
 
 ---
 
@@ -795,3 +745,4 @@ $$
 @Stefan1891
 @Weymouth2010
 @Quirós2024
+@ElOuafa2023
